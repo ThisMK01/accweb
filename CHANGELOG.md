@@ -1,12 +1,17 @@
 # Changelog
 
-## next release
+## 1.26.1
+* Fix logparser not handling lap flags properly. 
+
+## 1.26.0
 * Restructuring whole instance code to handle events.
 * New feature: add timestamp on instance logs. [#259](https://github.com/assetto-corsa-web/accweb/issues/259)
 * New feature: http callbacks over instance events.
 * Fix incorrect best lap. [#272](https://github.com/assetto-corsa-web/accweb/issues/272)
 * Fix missing driver. [#264](https://github.com/assetto-corsa-web/accweb/issues/264) 
-
+* Fix handling bad connections who was killing the accweb process
+* Improve live view UI
+* Fix almost all UI issues with special characters. Cyrillic chars still breaking :(
 
 ## 1.25.1
 * makes majority of the entrylist fields optional [#278](https://github.com/assetto-corsa-web/accweb/pull/278)
