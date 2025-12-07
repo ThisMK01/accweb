@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.26.3
+* feat: add chat messages to event system. [#289](https://github.com/assetto-corsa-web/accweb/pull/289)
+
 ## 1.26.1
 * Fix logparser not handling lap flags properly. 
 
