@@ -3,6 +3,7 @@ package logparser
 import (
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/assetto-corsa-web/accweb/internal/pkg/event"
@@ -288,7 +289,24 @@ func handleResettingRace(i *instance.Instance, l *instance.LiveState, _ []string
 }
 
 func handleChat(i *instance.Instance, l *instance.LiveState, p []string) {
-	l.AddChat(p[1], p[2])
+	name := p[1]
+	msg := p[2]
+
+	// skip /admin message
+	if len(msg) > 6 && strings.ToLower(msg[0:6]) == "/admin" {
+		return
+	}
+
+	drv := l.GetDriverByName(name)
+	if drv == nil {
+		drv = &instance.DriverState{
+			Name: name,
+		}
+		logrus.WithField("driver_name", name).Error("chat driver not found")
+	}
+
+	event.EmmitEventInstanceLiveChat(i.ToEIB(), drv.ToEILDB(), msg)
+	l.AddChat(name, msg)
 }
 
 func handleNewDamage(i *instance.Instance, l *instance.LiveState, p []string) {

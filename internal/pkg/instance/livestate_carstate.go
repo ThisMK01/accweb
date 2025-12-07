@@ -1,6 +1,7 @@
 package instance
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/assetto-corsa-web/accweb/internal/pkg/event"
@@ -84,6 +85,21 @@ func (c *CarState) GetDriver(idx int) *DriverState {
 	}
 
 	return c.Drivers[idx]
+}
+
+func (c *CarState) GetDriverByName(name string) *DriverState {
+	c.drvLock.Lock()
+	defer c.drvLock.Unlock()
+
+	uName := strings.ToUpper(name)
+
+	for _, d := range c.Drivers {
+		if strings.ToUpper(d.Name) == uName {
+			return d
+		}
+	}
+
+	return nil
 }
 
 func (c *CarState) LenDrivers() int {

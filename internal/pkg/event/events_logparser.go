@@ -221,3 +221,23 @@ func EmmitEventInstanceLiveNewDamageZone(
 		},
 	))
 }
+
+type EventInstanceLiveChat struct {
+	EventInstanceLiveDriverBase
+	Message string `json:"message"`
+}
+
+func EmmitEventInstanceLiveChat(
+	eib EventInstanceBase,
+	eildb EventInstanceLiveDriverBase,
+	Message string,
+) {
+	Emmit(NewEventInstanceLive(
+		eventBase("instance_live_chat"),
+		eib,
+		EventInstanceLiveChat{
+			EventInstanceLiveDriverBase: eildb,
+			Message:                     Message,
+		},
+	))
+}

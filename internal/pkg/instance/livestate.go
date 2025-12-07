@@ -2,7 +2,6 @@ package instance
 
 import (
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -83,6 +82,20 @@ func (l *LiveState) GetDriver(connId int) *DriverState {
 	logrus.WithFields(logrus.Fields{
 		"connID": connId,
 	}).Error("driver not found in GetDriver")
+
+	return nil
+}
+
+func (l *LiveState) GetDriverByName(name string) *DriverState {
+	l.connLock.RLock()
+	defer l.connLock.RUnlock()
+
+	for _, c := range l.Cars {
+		d := c.GetDriverByName(name)
+		if d != nil {
+			return d
+		}
+	}
 
 	return nil
 }
@@ -364,11 +377,6 @@ func (l *LiveState) recalculatePositions() {
 }
 
 func (l *LiveState) AddChat(name, message string) {
-	// skip /admin message
-	if len(message) > 6 && strings.ToLower(message[0:6]) == "/admin" {
-		return
-	}
-
 	l.AddHistory("chat", ServerHistoryChat{
 		Name:    name,
 		Message: message,

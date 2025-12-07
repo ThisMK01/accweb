@@ -23,6 +23,7 @@ var validEvents = map[string]struct{}{
 	"instance_live_new_damage_zone":       {},
 	"instance_live_reseting_race_weekend": {},
 	"instance_live_session_changed":       {},
+	"instance_live_chat":                  {},
 }
 var clients []*client
 

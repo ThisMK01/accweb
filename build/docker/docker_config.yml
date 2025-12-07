@@ -37,3 +37,4 @@ callback:
     - url: "$ACCWEB_CALLBACK_URL"
       headers:
         "$ACCWEB_CALLBACK_HEADER_KEY": "$ACCWEB_CALLBACK_HEADER_VALUE"
+      events: [ $ACCWEB_CALLBACK_EVENTS ]
