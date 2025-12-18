@@ -51,7 +51,7 @@ export default {
 <i18n>
 {
     "en": {
-        "title": "Configuration",
+        "title": "Configurations",
         "back_btn": "Back"
     }
 }
