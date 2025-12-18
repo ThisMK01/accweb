@@ -6,6 +6,7 @@
 				<button class="primary" v-on:click="$router.push('/server')" v-if="is_admin"><i class="fas fa-plus"></i> {{$t("add_new")}}</button>
 				<button v-bind:class="stopAllClass" v-on:click="stopAllServers" v-if="is_mod || is_admin"><i class="fas fa-stop"></i> {{$t("stop_all")}}</button>
 				<button v-on:click="loadServer(true)"><i class="fas fa-sync"></i> {{$t("refresh")}}</button>
+                <button v-on:click="$router.push('/configuration')" v-if="is_admin"><i class="fas fa-cog"></i></button>
 				<button class="logout-btn" v-on:click="logout" v-bind:title="$t('log_out')"><i class="fas fa-sign-out-alt"></i></button>
 			</div>
 		</div>

@@ -6,6 +6,7 @@
 				<button v-on:click="loadServer(true)"><i class="fas fa-sync"></i> {{$t("refresh")}}</button>
 			</div>
 		</div>
+		
 		<server v-for="s in server" :key="server.id" :server="s" ro="true"></server>
 	</layout>
 </template>

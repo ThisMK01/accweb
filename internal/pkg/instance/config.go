@@ -32,6 +32,11 @@ var (
 	}
 )
 
+type AccwebGlobalEntrylistJson struct {
+	PlayerName string `json:"playerName"`
+	PlayerId   string `json:"playerId"`
+}
+
 type AccConfigFiles struct {
 	Configuration ConfigurationJson `json:"configuration"`
 	Settings      SettingsJson      `json:"settings"`
@@ -52,9 +57,11 @@ type AccWebConfigJson struct {
 }
 
 type AccWebSettingsJson struct {
-	AutoStart       bool                          `json:"autoStart"`
-	EnableAdvWinCfg bool                          `json:"enableAdvWindowsCfg"`
-	AdvWindowsCfg   *AccWebAdvWindowsSettingsJson `json:"advWindowsCfg"`
+	AutoStart         bool                          `json:"autoStart"`
+	EnableAdvWinCfg   bool                          `json:"enableAdvWindowsCfg"`
+	AdvWindowsCfg     *AccWebAdvWindowsSettingsJson `json:"advWindowsCfg"`
+	EnableGlobalAdmin bool                          `json:"enableGlobalAdmin"`
+	EnableGlobalBan   bool                          `json:"enableGlobalBan"`
 }
 
 type AccWebAdvWindowsSettingsJson struct {

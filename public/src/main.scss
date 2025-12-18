@@ -70,14 +70,15 @@ body {
 	.server {
 		display: flex;
 		justify-content: space-between;
-		margin: 6px 0;
+		margin: 10px 0;
 		padding: 10px;
 		border: 1px solid $gray;
 		border-radius: 1px;
 
 		.name {
+			font-size: medium;
 			font-weight: bold;
-			margin: 0 0 6px 0;
+			margin: 0 0 15px 0;
 
 			.fas {
 				margin: 0 4px;
@@ -175,7 +176,12 @@ body {
 	border-radius: 1px;
 	padding: 20px;
 	margin: 10px 0;
+
+	&.condensed {
+		padding: 5px 20px;
+	}
 }
+
 
 .error-toast {
 	position: absolute;
@@ -187,6 +193,21 @@ body {
 		left: -50%;
 		border-radius: 1px;
 		background: $red;
+		color: $dark_gray;
+		padding: 10px;
+	}
+}
+
+.success-toast {
+	position: absolute;
+	left: 50%;
+	top: 20px;
+
+	.success-content {
+		position: relative;
+		left: -50%;
+		border-radius: 1px;
+		background: $green;
 		color: $dark_gray;
 		padding: 10px;
 	}

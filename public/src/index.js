@@ -7,7 +7,7 @@ import axios from "axios";
 import "./main.scss";
 import NewStore from "./store/store.js";
 import * as pages from "./pages";
-import {getLocale} from "./util/locale.js";
+import { getLocale } from "./util/locale.js";
 
 Vue.use(VueRouter);
 Vue.use(Vuex);
@@ -18,27 +18,28 @@ Vue.config.devtools = false;
 
 // router
 const routes = [
-	{path: "/", component: pages.Overview, meta: {protected: true}},
-	{path: "/login", component: pages.Login},
-	{path: "/server", component: pages.Server, meta: {protected: true}},
-	{path: "/logs", component: pages.Logs, meta: {protected: true}},
-	{path: "/live", component: pages.Live, meta: {protected: true}},
-	{path: "/status", component: pages.Status},
-	{path: "*", component: pages.Error404}
+	{ path: "/", component: pages.Overview, meta: { protected: true } },
+	{ path: "/login", component: pages.Login },
+	{ path: "/server", component: pages.Server, meta: { protected: true } },
+	{ path: "/logs", component: pages.Logs, meta: { protected: true } },
+	{ path: "/live", component: pages.Live, meta: { protected: true } },
+	{ path: "/status", component: pages.Status },
+	{ path: "/configuration", component: pages.Configuration, meta: { protected: true } },
+	{ path: "*", component: pages.Error404 }
 ];
 
-let router = new VueRouter({routes, mode: "history"});
+let router = new VueRouter({ routes, mode: "history" });
 
 // router interceptor to check token for protected pages
 router.beforeEach((to, from, next) => {
 	if (to.meta.protected) {
 		axios.get("/api/token")
-		.then(() => {
-			next();
-		})
-		.catch(() => {
-			next("/login");
-		});
+			.then(() => {
+				next();
+			})
+			.catch(() => {
+				next("/login");
+			});
 	}
 	else {
 		next();
@@ -60,8 +61,8 @@ axios.interceptors.request.use((config) => {
 
 // response error handler
 axios.interceptors.response.use(function (response) {
-    return response;
-  }, err => {
+	return response;
+}, err => {
 	if (err.response.data.message) {
 		console.log(err.response.data);
 	}

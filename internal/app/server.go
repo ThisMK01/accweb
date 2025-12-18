@@ -142,6 +142,14 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 		adm.POST("/instance/:id", h.SaveInstance)
 		adm.DELETE("/instance/:id", h.DeleteInstance)
 		adm.POST("/instance/:id/clone", h.CloneInstance)
+
+		adm.GET("/configure/global-admin", h.ListGlobalAdmins)
+		adm.POST("/configure/global-admin", h.SaveGlobalAdmins)
+		adm.DELETE("/configure/global-admin/:id", h.RemoveGlobalAdmin)
+
+		adm.GET("/configure/global-ban", h.ListGlobalBans)
+		adm.POST("/configure/global-ban", h.SaveGlobalBans)
+		adm.DELETE("/configure/global-ban/:id", h.RemoveGlobalBans)
 	}
 
 }

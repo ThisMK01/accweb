@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.27.0
+* Some ui improvements
+* feat: global admin and global ban
+
 ## 1.26.3
 * feat: add ping spike to event system. [#290](https://github.com/assetto-corsa-web/accweb/pull/290)
 

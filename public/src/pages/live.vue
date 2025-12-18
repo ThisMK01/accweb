@@ -74,6 +74,7 @@
                             <div  class="box" v-for="(d, i) in showLapsCar.drivers" :key="i" style="margin-bottom: 20px;">
                                 <h4 style="margin: 0 0 5px 0">{{ d.name }}</h4>
                                 ( {{ d.playerID }} )
+                                <button v-if="is_admin" v-on:click="globalBan(d.name, d.playerID)">add to global ban list</button>
                             </div>
                         </div>
 
@@ -121,7 +122,7 @@
                 <div id="chat">
                     <h3>Events</h3>
 
-                    <div class=" box server-settings-container four-columns">
+                    <div class="box condensed server-settings-container four-columns">
                         <div>
                             <checkbox label="Hide damage report" v-model="hideDamage" />
                         </div>
@@ -281,12 +282,14 @@ export default {
                     this.$store.commit("toast", this.$t("load_live_error"))
                 });
         },
+
         refreshList() {
             this.loadLive();
             toId = setTimeout(() => {
                 this.refreshList();
             }, this.refreshRate * 1000);
         },
+
         setShowLaps(carID, refresh) {
             if (refresh === undefined && this.showLaps === carID) {
                 this.showLaps = null;
@@ -297,6 +300,7 @@ export default {
             this.showLaps = carID;
             this.showLapsCar = this.data.live.cars[carID];
         },
+
         lastLap(laps) {
             if (laps === undefined || laps.length === 0) {
                 return {};
@@ -304,6 +308,7 @@ export default {
 
             return laps[laps.length - 1]
         },
+
         msToTime(ms) {
             if (ms === 0 || ms === undefined) {
                 return "--";
@@ -321,12 +326,14 @@ export default {
 
             return `${sign}${Math.floor(m % 60)}:${_.padStart(Math.floor(s % 60).toString(), 2, '0')}.${_.padStart(Math.floor(ms % 1000).toString(), 3, '0')}`;
         },
+
         calcDelta(idx) {
             const bestLap = this.showLapsCar.bestLapMS;
             const curLap = this.showLapsCar.laps[idx].lapTimeMS;
 
             return this.msToTime(curLap - bestLap);
         },
+
         calcGap(idx) {
             if (idx === 0) {
                 return "";
@@ -352,8 +359,33 @@ export default {
 
             return this.msToTime(gap);
         },
+
         timeSince(date) {
             return moment(date).format("LTS");
+        },
+
+        globalBan(name, id) {
+            if (!this.is_admin) {
+                return;
+            }
+
+            if (!window.confirm(this.$t("confirm_global_ban", {name: name, id: id}))) {
+                return;
+            }
+
+            const data = {
+                playerId: id,
+                playerName: name
+            }
+
+            axios.post(`/api/configure/global-ban`, data)
+                .then(r => {
+                    this.$store.commit("toast", "added to global ban list")
+                })
+                .catch(e => {
+                    console.log(e);
+                    this.$store.commit("toast", this.$t("add_global_ban_entry_error", {error: e.response.data.error}))
+                });
         }
     }
 }
@@ -450,7 +482,9 @@ tr:nth-child(odd) {
     "en": {
         "refresh": "Refresh",
         "back": "Back",
-        "load_live_error": "Error loading server live data."
+        "load_live_error": "Error loading server live data.",
+        "confirm_global_ban": "Do you really want to global ban player {name} ({id})?",
+        "add_global_ban_entry_error": "Failed to add to global ban list: {error}"
     }
 }
 </i18n>
