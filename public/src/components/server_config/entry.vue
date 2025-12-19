@@ -1,14 +1,23 @@
 <template>
     <div class="box">
-        <field type="number" :label="$t('racenumber_label')" v-model="entry.raceNumber"></field>
-        <selection :label="$t('forcedcarmodel_label')" :options="carModels" v-model="entry.forcedCarModel"></selection>
+        <div class="server-settings-container three-columns">
+            <field type="number" :label="$t('racenumber_label')" v-model="entry.raceNumber"></field>
+            <selection :label="$t('forcedcarmodel_label')" :options="carModels" v-model="entry.forcedCarModel"></selection>
+            <div>
+                <field type="text" :label="$t('customcar_label')" v-model="entry.customCar"></field>
+                <checkbox :label="$t('overridecarmodelforcustomcar_label')" v-model="entry.overrideCarModelForCustomCar"></checkbox>
+            </div>
+        </div>
+        
+        <div class="server-settings-container three-columns">
+            <field type="number" :label="$t('ballast_label')" v-model="entry.ballastKg"></field>
+            <field type="number" :label="$t('restrictor_label')" v-model="entry.restrictor"></field>
+            <field type="number" :label="$t('defaultgridposition_label')" v-model="entry.defaultGridPosition"></field>
+        </div>
+
         <checkbox :label="$t('overridedriverinfo_label')" v-model="entry.overrideDriverInfo"></checkbox>
         <checkbox :label="$t('isserveradmin_label')" v-model="entry.isServerAdmin"></checkbox>
-        <field type="text" :label="$t('customcar_label')" v-model="entry.customCar"></field>
-        <checkbox :label="$t('overridecarmodelforcustomcar_label')" v-model="entry.overrideCarModelForCustomCar"></checkbox>
-        <field type="number" :label="$t('ballast_label')" v-model="entry.ballastKg"></field>
-        <field type="number" :label="$t('restrictor_label')" v-model="entry.restrictor"></field>
-        <field type="number" :label="$t('defaultgridposition_label')" v-model="entry.defaultGridPosition"></field>
+
         <driver v-for="driver in drivers"
             :key="driver.index"
             :driver="driver"

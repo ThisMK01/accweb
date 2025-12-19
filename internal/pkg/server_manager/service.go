@@ -16,15 +16,15 @@ import (
 	"github.com/assetto-corsa-web/accweb/internal/pkg/instance"
 )
 
-type GlobalEntryContext string
+type GlobalListCtx string
 
 var (
 	ErrCantCreateConfigDir = errors.New("cant create accweb config dir")
 	ErrServerNotFound      = errors.New("server not found")
 	ErrServerAlreadyExists = errors.New("server already exists")
 
-	GlobalEntryContextAdmin GlobalEntryContext = "admin"
-	GlobalEntryContextBan   GlobalEntryContext = "ban"
+	GlobalListCtxEntry GlobalListCtx = "entrylist"
+	GlobalEntryCtxBan  GlobalListCtx = "banlist"
 )
 
 type Service struct {
@@ -291,19 +291,18 @@ func (s *Service) Config() cfg.Config {
 	return *s.config
 }
 
-func (s *Service) SaveGlobalEntry(context GlobalEntryContext, entries []instance.AccwebGlobalEntrylistJson) error {
+func (s *Service) SaveGlobalEntry(context GlobalListCtx, entries any) error {
 	name := fmt.Sprintf("global-%s.json", context)
 	return helper.SaveToPathSimple(s.config.ConfigPath, name, entries)
 }
 
-func (s *Service) LoadGlobalEntry(context GlobalEntryContext) ([]instance.AccwebGlobalEntrylistJson, error) {
+func (s *Service) LoadGlobalEntry(context GlobalListCtx, entries any) error {
 	name := fmt.Sprintf("global-%s.json", context)
-	var entries []instance.AccwebGlobalEntrylistJson
 
-	err := helper.LoadFromPathSimple(s.config.ConfigPath, name, &entries)
+	err := helper.LoadFromPathSimple(s.config.ConfigPath, name, entries)
 	if errors.Is(err, helper.ErrFileNotFound) {
-		return entries, nil
+		return nil
 	}
 
-	return entries, err
+	return err
 }

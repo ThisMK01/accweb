@@ -1,5 +1,10 @@
 <template>
     <div>
+        <p>Share a list of banned players across all your servers that have this feature enabled.</p>
+
+        <button v-show="!enabled" v-on:click="toggleEnabled()" class="primary">Enable</button>
+        <button v-show="enabled" v-on:click="toggleEnabled()" class="danger">Disable</button>
+
         <div class="box condensed">
             <p>Add new entry</p>
 
@@ -36,10 +41,9 @@
 
 <script>
 import axios from "axios";
-import field from "./field.vue";
+import field from "../../components/field.vue";
 
 export default {
-    props: ["context"],
     components: {field},
     data() {
         return {
@@ -47,6 +51,7 @@ export default {
             playerId: "",
             entryIndex: 0,
             entries: [],
+            enabled: false,
         };
     },
     mounted() {
@@ -54,13 +59,14 @@ export default {
     },
     methods: {
         loadList() {
-            axios.get(`/api/configure/global-${this.context}`)
+            axios.get(`/api/configure/global-ban`)
                 .then(r => {
-                    this.entries = r.data.entries;
+                    this.entries = r.data.entries || [];
+                    this.enabled = r.data.enabled;
                 })
                 .catch(e => {
                     console.log(e);
-                    this.$store.commit("toast", this.$t("load_entries_error") + ` ctx: ${this.context}`)
+                    this.$store.commit("toast", this.$t("load_entries_error"))
                 });
         },
 
@@ -70,7 +76,7 @@ export default {
                 playerName: this.playerName
             }
 
-            axios.post(`/api/configure/global-${this.context}`, data)
+            axios.post(`/api/configure/global-ban`, data)
                 .then(r => {
                     this.loadList();
 
@@ -79,7 +85,7 @@ export default {
                 })
                 .catch(e => {
                     console.log(e.response.data);
-                    this.$store.commit("toast", this.$t("add_entry_error", {error: e.response.data.error}) + ` ctx: ${this.context}`)
+                    this.$store.commit("toast", this.$t("add_entry_error", {error: e.response.data.error}))
                 });
         },
 
@@ -88,13 +94,24 @@ export default {
                 return;
             }
 
-            axios.delete(`/api/configure/global-${this.context}/${id}`)
+            axios.delete(`/api/configure/global-ban/${id}`)
                 .then(r => {
                     this.loadList();
                 })
                 .catch(e => {
                     console.log(e);
-                    this.$store.commit("toast", this.$t("delete_entry_error") + ` ctx: ${this.context}`)
+                    this.$store.commit("toast", this.$t("delete_entry_error"))
+                });
+        },
+
+        toggleEnabled() {
+            axios.post(`/api/configure/global-ban/enable-toggle`)
+                .then(r => {
+                    this.loadList();
+                })
+                .catch(e => {
+                    console.log(e.response.data);
+                    this.$store.commit("toast", this.$t("enable_toggle_error", {error: e.response.data.error}))
                 });
         }
     }
@@ -124,12 +141,12 @@ tr:nth-child(odd) {
     "en": {
         "player_name_label": "Player Name",
         "player_id_label": "PlayerID",
-        "add_new_button": "Add New",
-        "load_entries_error": "Failed to load entries",
-        "delete_entry_error": "Failed to delete entry",
-        "add_entry_error": "Failed to add new entry: {error}",
-        "delete_entry": "Delete entry",
-        "confirm_remove_entry": "Do you really want to remove this entry?"
+        "add_new_button": "Add New ban",
+        "load_entries_error": "Failed to load ban entries",
+        "delete_entry_error": "Failed to delete ban entry",
+        "add_entry_error": "Failed to add new ban entry: {error}",
+        "delete_entry": "Delete ban entry",
+        "confirm_remove_entry": "Do you really want to remove this ban entry?"
     }
 }
 </i18n>

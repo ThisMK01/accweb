@@ -1,14 +1,14 @@
 <template>
     <div class="collapsible">
-        <div class="collapsible-title" v-on:click="expanded = !expanded">
+        <div class="collapsible-title" v-on:click="exp = !exp">
             <div class="action-title">
-                {{title}}
+                {{title}} -- {{ expanded }}
                 <filereader v-show="withImport" @load="onLoadContent" :filename="importFilename"></filereader>
             </div>
 
-            <i class="collapse-icon" v-bind:class="{fas: true, 'fa-chevron-down': !expanded, 'fa-chevron-up': expanded}"></i>
+            <i class="collapse-icon" v-bind:class="{fas: true, 'fa-chevron-down': !exp, 'fa-chevron-up': exp}"></i>
         </div>
-        <div class="collapsible-content" v-show="expanded">
+        <div class="collapsible-content" v-show="exp">
             <div v-show="loadError" class="alert">
                 This is an invalid JSON file or maybe there is encoding issues.
             </div>
@@ -21,17 +21,22 @@
 import filereader from "./filereader.vue";
 
 export default {
-    props: ["title", "withImport", "importFilename"],
+    props: ["title", "withImport", "importFilename", "expanded"],
     components: { filereader },
     data() {
         return {
-            expanded: false,
+            exp: false,
             loadError: ''
         };
     },
+    mounted() {
+        if (this.expanded !== undefined) {
+            this.exp = this.expanded;
+        }
+    },
     methods: {
         onLoadContent: function (e) {
-            this.expanded = true;
+            this.exp = true;
             this.loadError = false;
             try {
                 const obj = JSON.parse(e.replaceAll('\x00', ''));

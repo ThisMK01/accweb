@@ -63,7 +63,7 @@ func DecodeBytes(data []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func LoadFromPath(baseDir, filename string, obj interface{}) error {
+func LoadFromPath(baseDir, filename string, obj any) error {
 	path := filepath.Join(baseDir, filename)
 	f, err := os.Open(path)
 	if err != nil {
@@ -80,7 +80,7 @@ func LoadFromPath(baseDir, filename string, obj interface{}) error {
 	return Decode(f, obj)
 }
 
-func LoadFromPathSimple(baseDir, filename string, obj interface{}) error {
+func LoadFromPathSimple(baseDir, filename string, obj any) error {
 	path := filepath.Join(baseDir, filename)
 	f, err := os.Open(path)
 	if err != nil {
@@ -97,7 +97,7 @@ func LoadFromPathSimple(baseDir, filename string, obj interface{}) error {
 	return json.NewDecoder(f).Decode(obj)
 }
 
-func SaveToPath(baseDir, filename string, obj interface{}) error {
+func SaveToPath(baseDir, filename string, obj any) error {
 	encodedData, err := Encode(obj)
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func SaveToPath(baseDir, filename string, obj interface{}) error {
 	return nil
 }
 
-func SaveToPathSimple(baseDir, filename string, obj interface{}) error {
+func SaveToPathSimple(baseDir, filename string, obj any) error {
 	encodedData, err := json.Marshal(obj)
 	if err != nil {
 		return err

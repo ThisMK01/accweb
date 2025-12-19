@@ -1,10 +1,12 @@
 <template>
-    <collapsible :title="$t('title')" with-import="true" import-filename="entrylist.json" @load="setData">
+    <collapsible :title="$t('title')" with-import="true" import-filename="entrylist.json" @load="setData" :expanded="expanded">
         <entry v-for="entry in entries"
             :key="entry.index"
             :entry="entry"
             v-on:remove="removeEntry"></entry>
-        <checkbox :label="$t('forceentrylist_label')" v-model="forceEntryList"></checkbox>
+        
+        <checkbox v-show="!expanded" :label="$t('forceentrylist_label')" v-model="forceEntryList"></checkbox>
+        
         <button v-on:click="addEntry">{{$t("add_entry_button")}}</button>
         <button v-on:click="clearEntries">{{$t("clear_entries_button")}}</button>
     </collapsible>
@@ -18,6 +20,7 @@ import checkbox from "../checkbox.vue";
 
 export default {
     components: {collapsible, entry, field, checkbox},
+    props: ["expanded"],
     data() {
         return {
             entryIndex: 0,

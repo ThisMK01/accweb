@@ -10,8 +10,8 @@
 
         <div class="tabs">
             <div v-bind:class="{tab: true, 'tab-active': activeTab === 0}" v-on:click="activeTab = 0">General</div>
-            <div v-bind:class="{tab: true, 'tab-active': activeTab === 1}" v-on:click="activeTab = 1">Global Admins</div>
-            <div v-bind:class="{tab: true, 'tab-active': activeTab === 2}" v-on:click="activeTab = 2">Global Bans</div>
+            <div v-bind:class="{tab: true, 'tab-active': activeTab === 1}" v-on:click="activeTab = 1">Global Entry List</div>
+            <div v-bind:class="{tab: true, 'tab-active': activeTab === 2}" v-on:click="activeTab = 2">Global Ban List</div>
         </div>
         
         <div v-show="activeTab === 0">
@@ -19,24 +19,21 @@
         </div>
 
         <div v-show="activeTab === 1">
-            <p>Share a list of administrator entries across all your servers that have this feature enabled.</p>
-
-            <simpleentrylist ref="globalAdmins" :context="'admin'"></simpleentrylist>
+            <globalentrylist />
         </div>
 
         <div v-show="activeTab === 2">
-            <p>Share a list of banned players across all your servers that have this feature enabled.</p>
-
-            <simpleentrylist ref="globalBans" :context="'ban'"></simpleentrylist>
+            <globalbanlist />
         </div>
     </layout>
 </template>
 
 <script>
-import {layout, end, simpleentrylist} from "../components";
+import {layout, end} from "../components";
+import {globalentrylist, globalbanlist} from "./configurations";
 
 export default {
-    components: {layout, end, simpleentrylist},
+    components: {layout, end, globalbanlist, globalentrylist},
     data() {
         return {
             activeTab: 1,

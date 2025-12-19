@@ -3,8 +3,8 @@
         <div class="server-settings-container two-columns">
             <div>
                 <checkbox :label="$t('autostart_label')" v-model="autoStart"></checkbox>
-                <checkbox :label="$t('enable_global_admin_label')" v-model="enableGlobalAdmin"></checkbox>
-                <checkbox :label="$t('enable_global_ban_label')" v-model="enableGlobalBan"></checkbox>
+                <checkbox :label="$t('enable_global_entry_label')" v-model="enableGlobalEntrylist"></checkbox>
+                <checkbox :label="$t('enable_global_ban_label')" v-model="enableGlobalBanlist"></checkbox>
 
                 
             </div>
@@ -54,8 +54,8 @@ export default {
         return {
             autoStart: false,
             enableAdvWindowsCfg: false,
-            enableGlobalAdmin: false,
-            enableGlobalBan: false,
+            enableGlobalEntrylist: false,
+            enableGlobalBanlist: false,
             advWindowsCfg: {
                 enableWindowsFirewall: false,
                 cpuPriority: 32,
@@ -101,8 +101,8 @@ export default {
         setData(data) {
             this.autoStart = data.autoStart;
             this.enableAdvWindowsCfg = data.enableAdvWindowsCfg;
-            this.enableGlobalAdmin = data.enableGlobalAdmin;
-            this.enableGlobalBan = data.enableGlobalBan;
+            this.enableGlobalEntrylist = data.enableGlobalEntrylist;
+            this.enableGlobalBanlist = data.enableGlobalBanlist;
 
             if (data.advWindowsCfg !== null) {
                 this.advWindowsCfg = data.advWindowsCfg;
@@ -127,8 +127,8 @@ export default {
                 autoStart: this.autoStart,
                 enableAdvWindowsCfg: this.enableAdvWindowsCfg,
                 advWindowsCfg: this.advWindowsCfg,
-                enableGlobalAdmin: this.enableGlobalAdmin,
-                enableGlobalBan: this.enableGlobalBan
+                enableGlobalEntrylist: this.enableGlobalEntrylist,
+                enableGlobalBanlist: this.enableGlobalEntrylist
             };
         }
     }
@@ -143,8 +143,8 @@ export default {
         "enable_adv_windows_conf": "Advanced Windows Configurations",
         "cpu_priority_label": "Process priority",
         "enable_windows_firewall": "Enable Windows Firewall",
-        "enable_global_admin_label": "Enable global admin entry list",
-        "enable_global_ban_label": "Enable global ban entry list",
+        "enable_global_entry_label": "Enable global entry list",
+        "enable_global_ban_label": "Enable global ban list",
         "adv_windows_alert": "CAUTION: If you are not familiarized with this terms, DISABLE this feature!"
     }
 }

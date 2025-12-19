@@ -26,57 +26,67 @@ func handleEvent(data event.Eventer) {
 			return
 		}
 
-		if !i.Cfg.Settings.EnableGlobalAdmin && !i.Cfg.Settings.EnableGlobalBan {
+		if !i.Cfg.Settings.EnableGlobalEntrylist && !i.Cfg.Settings.EnableGlobalBanlist {
 			return
 		}
 
 		list := i.AccCfg.Entrylist
-		list.ForceEntryList = 1
 
-		if i.Cfg.Settings.EnableGlobalAdmin {
-			admins, err := sM.LoadGlobalEntry(server_manager.GlobalEntryContextAdmin)
-			if err != nil {
-				logrus.WithError(err).Error("failed to load global admin list")
-				return
-			}
-
-			t := 1
-
-			for _, entry := range admins {
-				list.Entries = append(list.Entries, instance.EntrySettings{
-					Drivers: []instance.DriverSettings{
-						{
-							PlayerID:  entry.PlayerId,
-							FirstName: &entry.PlayerName,
-						},
-					},
-					IsServerAdmin: &t,
-				})
-			}
+		if i.Cfg.Settings.EnableGlobalEntrylist {
+			prepareEntrylist(&list)
 		}
 
-		if i.Cfg.Settings.EnableGlobalBan {
-			bans, err := sM.LoadGlobalEntry(server_manager.GlobalEntryContextBan)
-			if err != nil {
-				logrus.WithError(err).Error("failed to load global admin list")
-				return
-			}
-
-			carModel := 9999
-
-			for _, entry := range bans {
-				list.Entries = append(list.Entries, instance.EntrySettings{
-					Drivers: []instance.DriverSettings{
-						{
-							PlayerID:  entry.PlayerId,
-							FirstName: &entry.PlayerName,
-						},
-					},
-					ForcedCarModel: &carModel,
-				})
-			}
+		if i.Cfg.Settings.EnableGlobalBanlist {
+			prepareBanList(&list)
 		}
 
 		helper.SaveToPath(path.Join(i.Path, "cfg"), "entrylist.json", list)
 	}
+}
+
+func prepareEntrylist(list *instance.EntrylistJson) {
+	var data instance.AccwebGlobalEntrylistJson
+	err := sM.LoadGlobalEntry(server_manager.GlobalListCtxEntry, &data)
+	if err != nil {
+		logrus.WithError(err).Error("failed to load global entry list")
+		return
+	}
+
+	if !data.Enabled {
+		return
+	}
+
+	for _, entry := range data.Entries {
+		list.Entries = append(list.Entries, entry)
+	}
+
+	list.ForceEntryList = 1
+}
+
+func prepareBanList(list *instance.EntrylistJson) {
+	var data instance.AccwebGlobalBanlistJson
+	if err := sM.LoadGlobalEntry(server_manager.GlobalEntryCtxBan, &data); err != nil {
+		logrus.WithError(err).Error("failed to load global ban list")
+		return
+	}
+
+	if !data.Enabled {
+		return
+	}
+
+	carModel := 9999
+
+	for _, entry := range data.Entries {
+		list.Entries = append(list.Entries, instance.EntrySettings{
+			Drivers: []instance.DriverSettings{
+				{
+					PlayerID:  entry.PlayerId,
+					FirstName: &entry.PlayerName,
+				},
+			},
+			ForcedCarModel: &carModel,
+		})
+	}
+
+	list.ForceEntryList = 1
 }
