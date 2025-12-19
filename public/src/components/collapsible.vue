@@ -2,7 +2,7 @@
     <div class="collapsible">
         <div class="collapsible-title" v-on:click="exp = !exp">
             <div class="action-title">
-                {{title}} -- {{ expanded }}
+                {{title}}
                 <filereader v-show="withImport" @load="onLoadContent" :filename="importFilename"></filereader>
             </div>
 
