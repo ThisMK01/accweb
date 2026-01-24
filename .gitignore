@@ -10,3 +10,4 @@ config.yml
 frontend/node_modules/
 frontend/dist/
 __debug_bin*
+.pnpm-store

@@ -5,9 +5,9 @@ import (
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/assetto-corsa-web/accweb/frontend"
 	"github.com/assetto-corsa-web/accweb/internal/pkg/cfg"
 	"github.com/assetto-corsa-web/accweb/internal/pkg/server_manager"
-	"github.com/assetto-corsa-web/accweb/public"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -101,16 +101,16 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 	h := Handler{sm: sM}
 
 	if config.Dev {
-		basedir := "public"
+		basedir := "frontend/dist"
 		r.StaticFile("/", basedir+"/xindex.html")
-		r.Static("/static", basedir+"/static")
-		r.Static("/dist", basedir+"/dist")
+		r.Static("/assets", basedir+"/assets")
+		r.Static("/public", basedir+"/public")
 	} else {
 		r.GET("/", func(c *gin.Context) {
-			c.FileFromFS("xindex.html", http.FS(public.Content))
+			c.FileFromFS("xindex.html", http.FS(frontend.Content))
 		})
-		r.StaticFS("/static", my("static", http.FS(public.Content)))
-		r.StaticFS("/dist", my("dist", http.FS(public.Content)))
+		r.StaticFS("/assets", my("assets", http.FS(frontend.Content)))
+		r.StaticFS("/public", my("public", http.FS(frontend.Content)))
 	}
 
 	authMW := setupAuthRouters(r, config)
