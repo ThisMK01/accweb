@@ -44,7 +44,7 @@ definitions:
       pid:
         type: integer
       serverState:
-        type: string
+        $ref: '#/definitions/instance.ServerState'
       sessionPhase:
         type: string
       sessionRemaining:
@@ -73,7 +73,7 @@ definitions:
       pid:
         type: integer
       serverState:
-        type: string
+        $ref: '#/definitions/instance.ServerState'
       sessionPhase:
         type: string
       sessionRemaining:
@@ -137,6 +137,35 @@ definitions:
         type: boolean
       enableAdvWindowsCfg:
         type: boolean
+      enableGlobalBanlist:
+        type: boolean
+      enableGlobalEntrylist:
+        type: boolean
+    type: object
+  instance.AccwebGlobalBanEntryJson:
+    properties:
+      playerId:
+        type: string
+      playerName:
+        type: string
+    type: object
+  instance.AccwebGlobalBanlistJson:
+    properties:
+      enabled:
+        type: boolean
+      entries:
+        items:
+          $ref: '#/definitions/instance.AccwebGlobalBanEntryJson'
+        type: array
+    type: object
+  instance.AccwebGlobalEntrylistJson:
+    properties:
+      enabled:
+        type: boolean
+      entries:
+        items:
+          $ref: '#/definitions/instance.EntrySettings'
+        type: array
     type: object
   instance.AssistRulesJson:
     properties:
@@ -371,12 +400,20 @@ definitions:
         type: integer
       outLap:
         type: boolean
+      position:
+        type: integer
       s1:
         type: string
+      s1MS:
+        type: integer
       s2:
         type: string
+      s2MS:
+        type: integer
       s3:
         type: string
+      s3MS:
+        type: integer
       sessionOver:
         type: boolean
       timestampMS:
@@ -392,10 +429,14 @@ definitions:
         items:
           $ref: '#/definitions/instance.ServerChat'
         type: array
+      history:
+        items:
+          $ref: '#/definitions/instance.ServerHistory'
+        type: array
       nrClients:
         type: integer
       serverState:
-        type: string
+        $ref: '#/definitions/instance.ServerState'
       sessionPhase:
         type: string
       sessionRemaining:
@@ -416,6 +457,30 @@ definitions:
       ts:
         type: string
     type: object
+  instance.ServerHistory:
+    properties:
+      data: {}
+      id:
+        type: integer
+      ts:
+        type: string
+      type:
+        type: string
+    type: object
+  instance.ServerState:
+    enum:
+    - offline
+    - starting
+    - stoping
+    - not_registered
+    - online
+    type: string
+    x-enum-varnames:
+    - ServerStateOffline
+    - ServerStateStarting
+    - ServerStateStoping
+    - ServerStateNotRegistered
+    - ServerStateOnline
   instance.SessionSettings:
     properties:
       dayOfWeekend:
@@ -483,6 +548,154 @@ info:
   title: ACCWeb API documentation
   version: "1.19"
 paths:
+  /configure/global-ban:
+    get:
+      consumes:
+      - application/json
+      description: List all global bans
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/instance.AccwebGlobalBanlistJson'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.AccWError'
+      security:
+      - JWT: []
+      summary: List all global bans
+      tags:
+      - servers
+    post:
+      consumes:
+      - application/json
+      description: Save global bans
+      parameters:
+      - description: Global ban entry payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/instance.AccwebGlobalBanEntryJson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app.AccWError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.AccWError'
+      security:
+      - JWT: []
+      summary: Save global bans
+      tags:
+      - servers
+  /configure/global-ban/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a global ban entry by ID
+      parameters:
+      - description: Ban entry ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app.AccWError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.AccWError'
+      security:
+      - JWT: []
+      summary: Remove a global ban entry
+      tags:
+      - servers
+  /configure/global-ban/enable-toggle:
+    post:
+      consumes:
+      - application/json
+      description: Toggle global bans enabled status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.AccWError'
+      security:
+      - JWT: []
+      summary: Toggle global bans enabled status
+      tags:
+      - servers
+  /configure/global-entrylist:
+    get:
+      consumes:
+      - application/json
+      description: List all global admins
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/instance.AccwebGlobalEntrylistJson'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.AccWError'
+      security:
+      - JWT: []
+      summary: List all global admins
+      tags:
+      - servers
+    post:
+      consumes:
+      - application/json
+      description: Save global admins
+      parameters:
+      - description: Global admins payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/instance.AccwebGlobalEntrylistJson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app.AccWError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.AccWError'
+      security:
+      - JWT: []
+      summary: Save global admins
+      tags:
+      - servers
   /instance:
     post:
       consumes:
@@ -530,9 +743,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -560,7 +773,7 @@ paths:
           schema:
             $ref: '#/definitions/app.InstancePayload'
         "404":
-          description: ""
+          description: Not Found
       security:
       - JWT: []
       summary: Get acc instance information
@@ -594,7 +807,7 @@ paths:
           schema:
             $ref: '#/definitions/app.AccWError'
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -619,9 +832,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -650,7 +863,7 @@ paths:
           schema:
             type: string
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -679,7 +892,7 @@ paths:
           schema:
             $ref: '#/definitions/app.LiveServerInstancePayload'
         "404":
-          description: ""
+          description: Not Found
       security:
       - JWT: []
       summary: Get acc instance live information
@@ -704,7 +917,7 @@ paths:
           schema:
             $ref: '#/definitions/app.accWebInstanceLogs'
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -729,13 +942,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/app.AccWError'
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -760,13 +973,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/app.AccWError'
         "404":
-          description: ""
+          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -783,7 +996,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
       security:
       - JWT: []
       summary: Returns server OS informations
@@ -817,7 +1030,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
       security:
       - JWT: []
       summary: Stops all running ACC dedicated servers

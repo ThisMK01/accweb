@@ -9,15 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ListServers Handle the list all ACC dedicated servers
-// @Summary List all ACC dedicated servers
+// ListGlobalAdmins List all global admins
+// @Summary List all global admins
 // @Schemes
-// @Description List all ACC dedicated servers
+// @Description List all global admins
 // @Tags servers
 // @Accept json
 // @Produce json
-// @Success 200 {object} []ListServerItem{}
-// @Router /configure/global-admin [get]
+// @Success 200 {object} instance.AccwebGlobalEntrylistJson{}
+// @Failure 500 {object} AccWError
+// @Router /configure/global-entrylist [get]
 // @Security JWT
 func (h *Handler) ListGlobalAdmins(c *gin.Context) {
 	var data instance.AccwebGlobalEntrylistJson
@@ -29,6 +30,19 @@ func (h *Handler) ListGlobalAdmins(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+// SaveGlobalAdmins Save global admins
+// @Summary Save global admins
+// @Schemes
+// @Description Save global admins
+// @Tags servers
+// @Accept json
+// @Produce json
+// @Param payload body instance.AccwebGlobalEntrylistJson true "Global admins payload"
+// @Success 200
+// @Failure 400 {object} AccWError
+// @Failure 500 {object} AccWError
+// @Router /configure/global-entrylist [post]
+// @Security JWT
 func (h *Handler) SaveGlobalAdmins(c *gin.Context) {
 	var payload instance.AccwebGlobalEntrylistJson
 	if err := c.BindJSON(&payload); err != nil {
@@ -44,6 +58,17 @@ func (h *Handler) SaveGlobalAdmins(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
+// ListGlobalBans List all global bans
+// @Summary List all global bans
+// @Schemes
+// @Description List all global bans
+// @Tags servers
+// @Accept json
+// @Produce json
+// @Success 200 {object} instance.AccwebGlobalBanlistJson{}
+// @Failure 500 {object} AccWError
+// @Router /configure/global-ban [get]
+// @Security JWT
 func (h *Handler) ListGlobalBans(c *gin.Context) {
 	var data instance.AccwebGlobalBanlistJson
 	err := h.sm.LoadGlobalEntry(server_manager.GlobalEntryCtxBan, &data)
@@ -55,6 +80,19 @@ func (h *Handler) ListGlobalBans(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+// SaveGlobalBans Save global bans
+// @Summary Save global bans
+// @Schemes
+// @Description Save global bans
+// @Tags servers
+// @Accept json
+// @Produce json
+// @Param payload body instance.AccwebGlobalBanEntryJson true "Global ban entry payload"
+// @Success 200
+// @Failure 400 {object} AccWError
+// @Failure 500 {object} AccWError
+// @Router /configure/global-ban [post]
+// @Security JWT
 func (h *Handler) SaveGlobalBans(c *gin.Context) {
 	var entry instance.AccwebGlobalBanEntryJson
 	if err := c.BindJSON(&entry); err != nil {
@@ -86,6 +124,17 @@ func (h *Handler) SaveGlobalBans(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
+// EnableToggleGlobalBans Toggle global bans enabled status
+// @Summary Toggle global bans enabled status
+// @Schemes
+// @Description Toggle global bans enabled status
+// @Tags servers
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 {object} AccWError
+// @Router /configure/global-ban/enable-toggle [post]
+// @Security JWT
 func (h *Handler) EnableToggleGlobalBans(c *gin.Context) {
 	var data instance.AccwebGlobalBanlistJson
 	err := h.sm.LoadGlobalEntry(server_manager.GlobalEntryCtxBan, &data)
@@ -104,6 +153,19 @@ func (h *Handler) EnableToggleGlobalBans(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
+// RemoveGlobalBans Remove a global ban entry
+// @Summary Remove a global ban entry
+// @Schemes
+// @Description Remove a global ban entry by ID
+// @Tags servers
+// @Accept json
+// @Produce json
+// @Param id path int true "Ban entry ID"
+// @Success 200
+// @Failure 400 {object} AccWError
+// @Failure 500 {object} AccWError
+// @Router /configure/global-ban/{id} [delete]
+// @Security JWT
 func (h *Handler) RemoveGlobalBans(c *gin.Context) {
 	idS := c.Param("id")
 	id, err := strconv.Atoi(idS)
