@@ -11,8 +11,22 @@ const model = defineModel({
 
 <template>
   <div class="flex flex-col gap-3">
-    <UCheckbox v-model="model.autoStart" label="Server instance auto start." />
-    <UCheckbox v-model="model.enableGlobalEntrylist" label="Enable global entry list." />
-    <UCheckbox v-model="model.enableGlobalBanlist" label="Enable global ban list." />
+    <TCheckbox
+      v-model="model.autoStart"
+      label="Server instance auto start."
+      description="Server instance will start automatically when accweb starts."
+    />
+
+    <TCheckbox
+      v-model="model.enableGlobalEntrylist"
+      label="Enable global entry list."
+      description="Enable Global Entry list on this server instance."
+    />
+
+    <TCheckbox
+      v-model="model.enableGlobalBanlist"
+      label="Enable global ban list."
+      description="Enable Global Ban list on this server instance."
+    />
   </div>
 </template>

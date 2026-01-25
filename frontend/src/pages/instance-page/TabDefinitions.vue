@@ -11,6 +11,7 @@ import DefEvent from './definitions/DefEvent.vue'
 import DefEventRules from './definitions/DefEventRules.vue'
 
 import _ from 'lodash'
+import DefAssists from './definitions/DefAssists.vue'
 
 const toast = useToast()
 
@@ -161,7 +162,7 @@ async function onSubmit() {
         </template>
 
         <template #assists>
-          <div class="p-4">Assists Settings Content</div>
+          <DefAssists v-model="data.acc.assistRules" />
         </template>
       </UTabs>
     </UForm>

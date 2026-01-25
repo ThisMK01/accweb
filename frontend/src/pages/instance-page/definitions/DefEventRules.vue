@@ -102,7 +102,7 @@ sure both are set."
         result in 65 minutes of maxTotalDrivingTime for entries of
         3 and 105 (!) minutes for entries of 2."
       >
-        <UInput v-model="model.maxDriversCount" type="number" min="-1" step="1" />
+        <UInput v-model="model.maxDriversCount" type="number" min="0" step="1" />
       </TFormField>
 
       <TFormField
