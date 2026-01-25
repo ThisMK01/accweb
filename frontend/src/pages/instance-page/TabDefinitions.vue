@@ -2,7 +2,7 @@
 import { saveInstance } from '@/lib/accweb/client'
 import type { InstancePayload } from '@/lib/accweb/types'
 import type { FormError, TabsItem } from '@nuxt/ui'
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { schema } from '@/lib/accweb/schema'
 import DefAccweb from './definitions/DefAccweb.vue'
 import DefSettings from './definitions/DefSettings.vue'
@@ -13,9 +13,22 @@ import DefEvent from './definitions/DefEvent.vue'
 const toast = useToast()
 
 const props = defineProps<{ instance: InstancePayload }>()
-const data = ref<InstancePayload>(props.instance)
+const data = ref<InstancePayload>(_.cloneDeep(props.instance))
+const snapshot = ref<InstancePayload>(_.cloneDeep(props.instance))
 
 const emit = defineEmits(['instanceUpdated'])
+
+const isDirty = computed(() => !_.isEqual(data.value, snapshot.value))
+
+watch(
+  () => props.instance,
+  (newValue) => {
+    if (newValue.id != data.value.id) {
+      data.value = _.cloneDeep(newValue)
+      snapshot.value = _.cloneDeep(newValue)
+    }
+  },
+)
 
 const tabItems = ref<TabsItem[]>([
   {
@@ -81,6 +94,7 @@ function validate(): FormError[] {
 async function onSubmit() {
   saveInstance(data.value)
     .then(() => {
+      snapshot.value = _.cloneDeep(data.value)
       toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
       emit('instanceUpdated')
     })
@@ -99,13 +113,14 @@ async function onSubmit() {
     <UForm :validate="validate" :state="data" class="space-y-4" @submit="onSubmit">
       <div class="mb-4 flex flex-row gap-4">
         <div class="flex-auto">
+          {{ isDirty }}
           <UFormField label="Server name" name="acc.settings.serverName">
             <UInput v-model="data.acc.settings.serverName" class="w-full" />
           </UFormField>
         </div>
 
         <div class="flex-none self-end">
-          <UButton type="submit" :disabled="instance.is_running">Save Changes</UButton>
+          <UButton type="submit" :disabled="instance.is_running || !isDirty">Save Changes</UButton>
         </div>
       </div>
 
