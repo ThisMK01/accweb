@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { app } from '@/lib/accweb/types'
 import { startInstance, stopInstance } from '@/lib/accweb/client'
 import { useAuthStore } from '@/stores/auth'
 

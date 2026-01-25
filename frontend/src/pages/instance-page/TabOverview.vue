@@ -1,15 +1,10 @@
 <script lang="ts" setup>
-import type { LiveServerInstancePayload } from '@/lib/accweb/types'
+import type { LiveServerInstancePayload, InstancePayload } from '@/lib/accweb/types'
 import { liveInstance } from '@/lib/accweb/client'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import InstanceStartStopBtn from '@/components/InstanceStartStopBtn.vue'
 import moment from 'moment'
 
-const { instanceId } = defineProps<{
-  instanceId: string
-}>()
-
-const emit = defineEmits(['instanceUpdated'])
+const props = defineProps<{ instance: InstancePayload }>()
 
 let intervalId: NodeJS.Timeout
 
@@ -19,6 +14,7 @@ function loadLiveInstance(id: string) {
   liveInstance(id)
     .then((resp) => {
       live.value = resp
+      intervalId = setTimeout(() => loadLiveInstance(id), 2000)
     })
     .catch((err) => console.error('Error fetching live instance:', err))
 }
@@ -29,17 +25,13 @@ const liveTs = computed(() => {
 
 const onInit = () => {
   clearInterval(intervalId)
-  loadLiveInstance(instanceId)
-  intervalId = setInterval(() => loadLiveInstance(instanceId), 2000)
-}
+  if (!props.instance.is_running) return
 
-const refreshInstance = () => {
-  loadLiveInstance(instanceId)
-  emit('instanceUpdated')
+  loadLiveInstance(props.instance.id)
 }
 
 watch(
-  () => instanceId,
+  () => props.instance,
   () => {
     live.value = null
     onInit()
@@ -73,15 +65,7 @@ onUnmounted(() => {
 
       <div class="flex-auto"><strong>Last Update:</strong> {{ liveTs }}</div>
     </div>
-
-    <div class="flex flex-none">
-      <InstanceStartStopBtn
-        :instanceId="live?.id!"
-        :isRunning="live?.isRunning!"
-        :refreshFunction="() => refreshInstance()"
-      />
-    </div>
   </div>
 
-  <div v-else>Loading...</div>
+  <div v-else>Not running...</div>
 </template>

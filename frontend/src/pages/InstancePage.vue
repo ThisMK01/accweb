@@ -89,19 +89,31 @@ const tabItems = ref<TabsItem[]>([
 </script>
 
 <template>
-  <USelectMenu
-    v-model="instanceId"
-    size="xl"
-    value-key="id"
-    :items="instanceItems"
-    class="w-full mb-5 hover:border"
-    variant="none"
-    @change="router.push({ path: `/instance/${instanceId}` })"
-  />
+  <div class="flex gap-4">
+    <div class="flex-auto">
+      <USelectMenu
+        v-model="instanceId"
+        size="xl"
+        value-key="id"
+        :items="instanceItems"
+        class="w-full mb-5 hover:border"
+        variant="none"
+        @change="router.push({ path: `/instance/${instanceId}` })"
+      />
+    </div>
+    <div class="flex-none">
+      <InstanceStartStopBtn
+        v-if="instance"
+        :instanceId="instanceId"
+        :isRunning="instance.is_running"
+        :refreshFunction="() => loadInstance(instanceId)"
+      />
+    </div>
+  </div>
 
   <UTabs :items="tabItems" color="error" :unmount-on-hide="false" class="w-full gap-4">
-    <template #overview>
-      <TabOverview :instanceId="instanceId" @instance-updated="loadInstance(instanceId)" />
+    <template #overview v-if="instance">
+      <TabOverview :instance="instance" @instance-updated="loadInstance(instanceId)" />
     </template>
 
     <template #definitions v-if="instance">

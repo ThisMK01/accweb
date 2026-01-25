@@ -7,8 +7,10 @@ import { schema } from '@/lib/accweb/schema'
 import DefAccweb from './definitions/DefAccweb.vue'
 import DefSettings from './definitions/DefSettings.vue'
 import DefGeneral from './definitions/DefGeneral.vue'
-import _ from 'lodash'
 import DefEvent from './definitions/DefEvent.vue'
+import DefEventRules from './definitions/DefEventRules.vue'
+
+import _ from 'lodash'
 
 const toast = useToast()
 
@@ -147,7 +149,7 @@ async function onSubmit() {
         </template>
 
         <template #rules>
-          <div class="p-4">Rules Settings Content</div>
+          <DefEventRules v-model="data.acc.eventRules" />
         </template>
 
         <template #entrylist>
