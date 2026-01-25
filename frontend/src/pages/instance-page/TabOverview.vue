@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { app } from '@/lib/accweb/types'
+import type { LiveServerInstancePayload } from '@/lib/accweb/types'
 import { liveInstance } from '@/lib/accweb/client'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import InstanceStartStopBtn from '@/components/InstanceStartStopBtn.vue'
@@ -13,7 +13,7 @@ const emit = defineEmits(['instanceUpdated'])
 
 let intervalId: NodeJS.Timeout
 
-const live = ref<app.LiveServerInstancePayload | null>(null)
+const live = ref<LiveServerInstancePayload | null>(null)
 
 function loadLiveInstance(id: string) {
   liveInstance(id)
@@ -57,7 +57,7 @@ onUnmounted(() => {
 
 <template>
   <div v-if="live" class="flex flex-row gap-4">
-    <div class="flex flex-auto flex-row gap-4 border rounded-lg p-3">
+    <div class="flex flex-auto flex-row gap-4 border rounded-lg p-3 text-sm">
       <div class="flex-auto"><strong>Status:</strong> {{ live?.serverState }}</div>
 
       <div class="flex-auto"><strong>Track:</strong> {{ live?.track }}</div>

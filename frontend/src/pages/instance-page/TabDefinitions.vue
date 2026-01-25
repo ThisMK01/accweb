@@ -113,7 +113,6 @@ async function onSubmit() {
     <UForm :validate="validate" :state="data" class="space-y-4" @submit="onSubmit">
       <div class="mb-4 flex flex-row gap-4">
         <div class="flex-auto">
-          {{ isDirty }}
           <UFormField label="Server name" name="acc.settings.serverName">
             <UInput v-model="data.acc.settings.serverName" class="w-full" />
           </UFormField>

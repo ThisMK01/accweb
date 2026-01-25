@@ -45,7 +45,7 @@ cover tracks like Spa or Silverstone). "
 sessionOverTimeSeconds passed) in Q sessions and the race
 start. Should not be set to 0, otherwise grid spawning is not secure."
       >
-        <UInput v-model="model.postQualySeconds" type="number" min="30" />
+        <UInput v-model="model.postQualySeconds" type="number" />
       </TFormField>
 
       <TFormField
@@ -54,7 +54,7 @@ start. Should not be set to 0, otherwise grid spawning is not secure."
         help="Additional time after the race ended for everyone, before the
 next race weekend starts."
       >
-        <UInput v-model="model.postRaceSeconds" type="number" min="30" />
+        <UInput v-model="model.postRaceSeconds" type="number" />
       </TFormField>
 
       <TFormField
