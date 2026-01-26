@@ -11,12 +11,12 @@
                 "run",
                 "dev"
             ],
-            "runtimeExecutable": "npm",
+            "runtimeExecutable": "pnpm",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "type": "node",
-            "cwd": "${workspaceFolder}/public"
+            "cwd": "${workspaceFolder}/frontend"
         },
         {
             "name": "Accweb Backend",

@@ -63,7 +63,7 @@ watch(
 const tabItems = ref<TabsItem[]>([
   {
     label: 'Overview',
-    icon: 'i-lucide-user',
+    icon: 'i-lucide-monitor',
     content: 'This is the account content.',
     slot: 'overview',
   },
@@ -111,7 +111,7 @@ const tabItems = ref<TabsItem[]>([
     </div>
   </div>
 
-  <UTabs :items="tabItems" color="error" :unmount-on-hide="false" class="w-full gap-4">
+  <UTabs :items="tabItems" color="secondary" :unmount-on-hide="false" class="w-full gap-4">
     <template #overview v-if="instance">
       <TabOverview :instance="instance" @instance-updated="loadInstance(instanceId)" />
     </template>

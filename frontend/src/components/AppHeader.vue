@@ -30,7 +30,11 @@ const items = computed<NavigationMenuItem[]>(() => [
       <div id="title-description" class="mb-3 invisible md:visible">Server Management</div>
     </template>
 
-    <UNavigationMenu :items="items" v-if="!isLoginPage" />
+    <UNavigationMenu
+      :items="items"
+      v-if="!isLoginPage"
+      :ui="{ link: 'data-[active]:text-red-400' }"
+    />
 
     <template #right>
       <UTooltip text="Open on GitHub">

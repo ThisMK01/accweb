@@ -130,6 +130,7 @@ async function onSubmit() {
         :items="tabItems"
         class="w-full gap-4"
         variant="link"
+        color="warning"
         :unmount-on-hide="false"
         :ui="{}"
       >
