@@ -76,20 +76,33 @@ const tabItems = ref<TabsItem[]>([
   },
 ])
 
+function addBadge(slot: string) {
+  const item = _.find(tabItems.value, { slot: slot })
+  if (item) {
+    item.badge = { color: 'error', variant: 'solid' }
+  }
+}
+
+function clearBadges() {
+  _.forEach(tabItems.value, (item) => {
+    item.badge = undefined
+  })
+}
+
 function validate(): FormError[] {
   const errors: FormError[] = []
-
   const result = schema.safeParse(data.value)
+
+  clearBadges()
 
   if (result.success) {
     return []
   }
 
   _.forEach(result.error.issues, (err) => {
+    addBadge(err.path[1] as string)
     errors.push({ name: err.path.join('.'), message: err.message })
   })
-
-  console.log('errors', errors)
 
   return errors
 }
@@ -132,6 +145,7 @@ async function onSubmit() {
         variant="link"
         color="warning"
         :unmount-on-hide="false"
+        size="xl"
         :ui="{}"
       >
         <template #accweb>
