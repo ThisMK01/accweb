@@ -150,20 +150,23 @@ function getRowItems(index: number): DropdownMenuItem[] {
 </script>
 
 <template>
-  <UTable
-    ref="table"
-    :data="model"
-    :columns="columns"
-    :ui="{
-      tbody: 'my-table-tbody',
-    }"
-  >
+  <UTable ref="table" :data="model" :columns="columns" :ui="{ td: 'p-1' }">
     <template #sessionType-cell="{ row }">
-      <USelect v-model="model![row.index]!.sessionType" :items="sessionTypes" class="w-28" />
+      <USelect
+        v-model="model![row.index]!.sessionType"
+        size="sm"
+        :items="sessionTypes"
+        class="w-28"
+      />
     </template>
 
     <template #dayOfWeekend-cell="{ row }">
-      <USelect v-model="model![row.index]!.dayOfWeekend" :items="daysOfWeek" class="w-26" />
+      <USelect
+        v-model="model![row.index]!.dayOfWeekend"
+        size="sm"
+        :items="daysOfWeek"
+        class="w-26"
+      />
     </template>
 
     <template #hourOfDay-cell="{ row }">
@@ -172,6 +175,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
           v-model="model![row.index]!.hourOfDay"
           type="number"
           min="0"
+          size="sm"
           max="23"
           class="w-16"
         />
@@ -184,6 +188,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
           v-model="model![row.index]!.sessionDurationMinutes"
           type="number"
           min="0"
+          size="sm"
           class="w-16"
         />
       </TFormField>
@@ -191,7 +196,13 @@ function getRowItems(index: number): DropdownMenuItem[] {
 
     <template #timeMultiplier-cell="{ row }">
       <TFormField :name="`acc.event.sessions.${row.index}.timeMultiplier`">
-        <UInput v-model="model![row.index]!.timeMultiplier" type="number" min="0" class="w-16" />
+        <UInput
+          v-model="model![row.index]!.timeMultiplier"
+          size="sm"
+          type="number"
+          min="0"
+          class="w-16"
+        />
       </TFormField>
     </template>
 
@@ -211,7 +222,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
     </template>
   </UTable>
 
-  <div class="flex gap-2">
+  <div class="flex gap-2 mt-5">
     <UButton
       label="Add"
       icon="i-lucide-plus"

@@ -9,9 +9,9 @@ import DefSettings from './definitions/DefSettings.vue'
 import DefGeneral from './definitions/DefGeneral.vue'
 import DefEvent from './definitions/DefEvent.vue'
 import DefEventRules from './definitions/DefEventRules.vue'
-
-import _ from 'lodash'
 import DefAssists from './definitions/DefAssists.vue'
+import DefEntrylist from './definitions/DefEntrylist.vue'
+import _ from 'lodash'
 
 const toast = useToast()
 
@@ -155,7 +155,7 @@ async function onSubmit() {
         </template>
 
         <template #entrylist>
-          <div class="p-4">Entry List Settings Content</div>
+          <DefEntrylist v-model="data.acc.entrylist" />
         </template>
 
         <template #bop>
