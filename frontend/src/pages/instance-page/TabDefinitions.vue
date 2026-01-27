@@ -16,7 +16,10 @@ import _ from 'lodash'
 
 const toast = useToast()
 
-const props = defineProps<{ instance: InstancePayload }>()
+const props = defineProps<{
+  instance: InstancePayload
+  overrideOnSubmit?: (data: InstancePayload) => void
+}>()
 const data = ref<InstancePayload>(_.cloneDeep(props.instance))
 const snapshot = ref<InstancePayload>(_.cloneDeep(props.instance))
 
@@ -105,12 +108,12 @@ function validate(): FormError[] {
     errors.push({ name: err.path.join('.'), message: err.message })
   })
 
-  console.log(errors)
+  console.log('Validation errors:', errors)
 
   return errors
 }
 
-async function onSubmit() {
+async function defaultOnSubmit() {
   saveInstance(data.value)
     .then(() => {
       snapshot.value = _.cloneDeep(data.value)
@@ -125,6 +128,14 @@ async function onSubmit() {
       })
     })
 }
+
+async function onSubmit() {
+  if (props.overrideOnSubmit) {
+    props.overrideOnSubmit(data.value)
+  } else {
+    defaultOnSubmit()
+  }
+}
 </script>
 
 <template>
@@ -137,8 +148,16 @@ async function onSubmit() {
           </UFormField>
         </div>
 
-        <div class="flex-none self-end">
-          <UButton type="submit" :disabled="instance.is_running || !isDirty">Save Changes</UButton>
+        <div class="flex-none">
+          <UButton
+            :active="!instance.is_running && isDirty"
+            active-color="primary"
+            color="neutral"
+            type="submit"
+            class="mt-6"
+            :disabled="instance.is_running || !isDirty"
+            >Save Changes</UButton
+          >
         </div>
       </div>
 

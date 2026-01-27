@@ -35,7 +35,14 @@ const sortedServerList = computed<ListServerItem[]>(() => {
 </script>
 
 <template>
-  <div class="flex gap-3">
+  <div class="flex flex-col gap-3">
+    <div class="flex-none flex flex-row mb-5">
+      <div class="flex-auto">.</div>
+      <div class="flex-none">
+        <UButton to="/instance-new" icon="i-lucide-plus">Create New</UButton>
+      </div>
+    </div>
+
     <div class="flex-auto">
       <div v-if="servers.length">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

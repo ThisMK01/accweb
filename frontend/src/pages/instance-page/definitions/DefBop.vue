@@ -12,7 +12,7 @@ const model = defineModel({
 })
 
 defineProps<{
-  currentTrack: string
+  currentTrack?: string
 }>()
 
 const tracksItems = ref<SelectItem[]>(tracks)
