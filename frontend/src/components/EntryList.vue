@@ -15,11 +15,11 @@ defineProps<{
   hideForceEntryListCheckbox?: boolean
 }>()
 
-const carItems = ref<SelectItem[]>([
-  ..._.map(_.sortBy(cars, 'brand'), (c) => {
+const carItems = ref<SelectItem[]>(
+  _.map(_.sortBy(cars, 'brand'), (c) => {
     return { label: c.model, value: c.id }
   }),
-])
+)
 </script>
 
 <template>

@@ -11,6 +11,7 @@ import DefEvent from './definitions/DefEvent.vue'
 import DefEventRules from './definitions/DefEventRules.vue'
 import DefAssists from './definitions/DefAssists.vue'
 import DefEntrylist from './definitions/DefEntrylist.vue'
+import DefBop from './definitions/DefBop.vue'
 import _ from 'lodash'
 
 const toast = useToast()
@@ -104,6 +105,8 @@ function validate(): FormError[] {
     errors.push({ name: err.path.join('.'), message: err.message })
   })
 
+  console.log(errors)
+
   return errors
 }
 
@@ -173,7 +176,7 @@ async function onSubmit() {
         </template>
 
         <template #bop>
-          <div class="p-4">BoP Settings Content</div>
+          <DefBop v-model="data.acc.bop" :current-track="data.acc.event.track" />
         </template>
 
         <template #assists>
