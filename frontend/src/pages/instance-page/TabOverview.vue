@@ -8,6 +8,8 @@ import GridTable from './overview/GridTable.vue'
 
 const props = defineProps<{ instance: InstancePayload }>()
 
+const emit = defineEmits(['instanceUpdated'])
+
 let intervalId: NodeJS.Timeout
 
 const live = ref<LiveServerInstancePayload | null>(null)
@@ -43,6 +45,15 @@ const onInit = () => {
 watch(
   () => props.instance,
   () => onInit(),
+)
+
+watch(
+  () => live.value?.serverState,
+  (newValue, oldValue) => {
+    if (newValue === 'offline' && oldValue === 'stopping') {
+      emit('instanceUpdated')
+    }
+  },
 )
 
 onMounted(() => {

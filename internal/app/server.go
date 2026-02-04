@@ -124,6 +124,8 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 	api.GET("/instance/:id/logs", h.GetInstanceLogs)
 	api.GET("/instance/:id/live", h.GetInstanceLiveState)
 	api.GET("/instance/:id/export", h.ExportInstance)
+	api.GET("/instance/:id/results", h.GetInstanceResultList)
+	api.GET("/instance/:id/results/:resultId", h.GetInstanceResultContent)
 
 	// moderator level
 	mod := api.Group("")

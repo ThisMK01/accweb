@@ -8,6 +8,8 @@ import _ from 'lodash'
 const servers = ref<ListServerItem[]>([])
 let intervalId: NodeJS.Timeout
 
+const loading = ref(false)
+
 onMounted(async () => {
   refreshServers()
 
@@ -19,6 +21,11 @@ onUnmounted(() => {
 })
 
 const refreshServers = () => {
+  if (loading.value) {
+    return
+  }
+
+  loading.value = true
   fetchServer()
     .then((serversResp) => {
       servers.value = serversResp
@@ -26,6 +33,23 @@ const refreshServers = () => {
     })
     .catch((error) => {
       console.error('Error fetching servers:', error)
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+function refreshNow() {
+  loading.value = true
+  fetchServer()
+    .then((serversResp) => {
+      servers.value = serversResp
+    })
+    .catch((error) => {
+      console.error('Error fetching servers:', error)
+    })
+    .finally(() => {
+      loading.value = false
     })
 }
 
@@ -50,7 +74,7 @@ const sortedServerList = computed<ListServerItem[]>(() => {
             v-for="server in sortedServerList"
             :key="server.id + '-' + server.isRunning"
             :instance="server"
-            :refreshFunction="refreshServers"
+            :refreshFunction="refreshNow"
           />
         </div>
       </div>

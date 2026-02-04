@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { app } from '@/lib/accweb/types'
 import { cloneInstance, deleteInstance } from '@/lib/accweb/client'
 import { useAuthStore } from '@/stores/auth'
 import InstanceStartStopBtn from '@/components/InstanceStartStopBtn.vue'
+import type { ListServerItem } from '@/lib/accweb/types'
 
 const state = useAuthStore()
 
 const props = defineProps<{
-  instance: app.ListServerItem
+  instance: ListServerItem
   refreshFunction: () => void
 }>()
 
@@ -64,7 +64,11 @@ const clone = (id: string) => {
       </RouterLink>
     </template>
 
-    {{ instance.nrClients }}
+    {{ instance.nrClients }} - {{ instance.serverState }} <br />
+    <strong>Phase:</strong> {{ instance.sessionType }} ({{ instance.sessionPhase }}) [{{
+      instance.sessionRemaining
+    }}
+    min]
 
     <template #footer>
       <div>

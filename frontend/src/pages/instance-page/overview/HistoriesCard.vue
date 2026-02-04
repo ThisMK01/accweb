@@ -57,7 +57,7 @@ const histories = computed(() => {
 
           <div v-else-if="item.type == 'damage'" class="flex-none text-stone-400">
             <div class="inline text-xs">{{ moment(item.ts).format('HH:mm:ss') }}</div>
-            <div class="inline font-bold ml-2">{{ (item.data as HistoryDamage).name }}:</div>
+            <div class="inline font-bold ml-2 mr-1">{{ (item.data as HistoryDamage).name }}:</div>
             <div class="inline">Damage Report #{{ (item.data as HistoryDamage).raceNumber }}</div>
           </div>
         </div>

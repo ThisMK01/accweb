@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/assetto-corsa-web/accweb/internal/pkg/instance"
 	"github.com/assetto-corsa-web/accweb/internal/pkg/server_manager"
@@ -259,9 +260,18 @@ func (h *Handler) StopInstance(c *gin.Context) {
 		return
 	}
 
-	if err := srv.Stop(); err != nil {
-		c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
-		return
+	arw := c.DefaultQuery("afterRaceWeekend", "false")
+
+	if arw == "true" {
+		if err := srv.StopAfterWeekend(); err != nil {
+			c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
+			return
+		}
+	} else {
+		if err := srv.Stop(); err != nil {
+			c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, nil)
@@ -393,4 +403,50 @@ func (h *Handler) GetInstanceLiveState(c *gin.Context) {
 		ListServerItem: buildListServerItem(srv),
 		Live:           srv.Live,
 	})
+}
+
+func (h *Handler) GetInstanceResultList(c *gin.Context) {
+	id := c.Param("id")
+
+	srv, err := h.sm.GetServerByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	resultList, err := srv.GetResultList()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"results": resultList,
+	})
+}
+
+func (h *Handler) GetInstanceResultContent(c *gin.Context) {
+	id := c.Param("id")
+
+	srv, err := h.sm.GetServerByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	resultIdxStr := c.Param("resultId")
+
+	resultIdx, err := strconv.Atoi(resultIdxStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, newAccWError("invalid result index"))
+		return
+	}
+
+	content, err := srv.GetResultContent(resultIdx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
+		return
+	}
+
+	c.Data(http.StatusOK, "application/json", content)
 }

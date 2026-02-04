@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { startInstance, stopInstance } from '@/lib/accweb/client'
+import { startInstance, stopInstance, stopInstanceAfterRaceWeekend } from '@/lib/accweb/client'
 import { useAuthStore } from '@/stores/auth'
 
 const state = useAuthStore()
@@ -16,7 +16,8 @@ const stopItems = [
     onSelect: () => stop(props.instanceId),
   },
   {
-    label: 'Stop after current session',
+    label: 'Stop after race weekend',
+    onSelect: () => stopAfterWeekend(props.instanceId),
   },
 ]
 
@@ -32,6 +33,16 @@ const start = (id: string) => {
 
 const stop = (id: string) => {
   stopInstance(id)
+    .then(() => {
+      props.refreshFunction()
+    })
+    .catch((error) => {
+      console.error('Error stopping instance:', error)
+    })
+}
+
+const stopAfterWeekend = (id: string) => {
+  stopInstanceAfterRaceWeekend(id)
     .then(() => {
       props.refreshFunction()
     })
