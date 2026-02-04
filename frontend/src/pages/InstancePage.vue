@@ -8,6 +8,7 @@ import type { SelectMenuItem } from '@nuxt/ui'
 import _ from 'lodash'
 import TabOverview from './instance-page/TabOverview.vue'
 import TabDefinitions from './instance-page/TabDefinitions.vue'
+import TabResults from './instance-page/TabResults.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -118,6 +119,10 @@ const tabItems = ref<TabsItem[]>([
 
     <template #definitions v-if="instance">
       <TabDefinitions :instance="instance" @instance-updated="loadInstanceList()" />
+    </template>
+
+    <template #results v-if="instance">
+      <TabResults :instance="instance" />
     </template>
   </UTabs>
 </template>
