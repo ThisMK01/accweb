@@ -15,6 +15,13 @@ const router = useRouter()
 
 const fields: AuthFormField[] = [
   {
+    name: 'username',
+    label: 'Username',
+    type: 'text',
+    placeholder: 'Enter your username',
+    required: true,
+  },
+  {
     name: 'password',
     label: 'Password',
     type: 'password',
@@ -24,17 +31,16 @@ const fields: AuthFormField[] = [
 ]
 
 const schema = z.object({
+  username: z.string('Username is required'),
   password: z.string('Password is required'),
 })
 
 type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
-  console.log('Submitted', payload.data.password)
-
-  login(payload.data.password)
+  login(payload.data.username, payload.data.password)
     .then((resp) => {
-      setAuthToken(resp.token!)
+      setAuthToken(resp.token)
       state.login(resp)
       router.push({ path: '/' })
     })

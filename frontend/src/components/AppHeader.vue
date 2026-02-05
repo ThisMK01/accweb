@@ -3,10 +3,26 @@ import { computed } from 'vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useRoute } from 'vue-router'
 import Logo from '@/assets/logo.png'
+import { useAuthStore } from '@/stores/auth'
+import { logout } from '@/lib/accweb/client'
 
 const route = useRoute()
+const state = useAuthStore()
+const toast = useToast()
 
 const isLoginPage = computed(() => route.path === '/login')
+const roleName = computed(() => {
+  switch (state.role) {
+    case 'admin':
+      return 'Administrator'
+    case 'moderator':
+      return 'Moderator'
+    case 'read_only':
+      return 'Read-Only User'
+    default:
+      return ''
+  }
+})
 
 const items = computed<NavigationMenuItem[]>(() => [
   {
@@ -20,6 +36,22 @@ const items = computed<NavigationMenuItem[]>(() => [
     active: route.path === '/settings',
   },
 ])
+
+function logoutClick() {
+  logout()
+    .then(() => {
+      state.logout()
+      window.location.href = '/login'
+    })
+    .catch((error) => {
+      console.error('Logout error:', error)
+      toast.add({
+        title: 'Uh oh! Something went wrong.',
+        description: error.response?.data?.message || 'Please try again later.',
+        color: 'error',
+      })
+    })
+}
 </script>
 
 <template>
@@ -67,7 +99,19 @@ const items = computed<NavigationMenuItem[]>(() => [
         v-if="!isLoginPage"
       />
 
-      <UUser name="John Doe" description="Administrator" v-if="!isLoginPage" />
+      <UUser
+        :name="state.username"
+        :description="roleName"
+        v-if="!isLoginPage && state.username && state.role"
+      />
+
+      <UButton
+        icon="i-lucide-log-out"
+        color="secondary"
+        class="ml-2"
+        @click="logoutClick()"
+        v-if="!isLoginPage"
+      />
     </template>
 
     <template #body>

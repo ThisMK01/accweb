@@ -106,11 +106,13 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 		r.Static("/assets", basedir+"/assets")
 		r.Static("/public", basedir+"/public")
 	} else {
+		fe := frontend.NewDistFS(frontend.Content)
+
 		r.GET("/", func(c *gin.Context) {
-			c.FileFromFS("xindex.html", http.FS(frontend.Content))
+			c.FileFromFS("xindex.html", http.FS(fe))
 		})
-		r.StaticFS("/assets", my("assets", http.FS(frontend.Content)))
-		r.StaticFS("/public", my("public", http.FS(frontend.Content)))
+		r.StaticFS("/assets", my("assets", http.FS(fe)))
+		r.StaticFS("/public", my("public", http.FS(fe)))
 	}
 
 	authMW := setupAuthRouters(r, config)
@@ -157,11 +159,13 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 }
 
 type LoginPayload struct {
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 type User struct {
 	UserName string `json:"user_name"`
+	Role     string `json:"role"`
 	Admin    bool   `json:"admin"`
 	Mod      bool   `json:"mod"`
 	ReadOnly bool   `json:"read_only"`
@@ -182,6 +186,7 @@ func setupAuthRouters(r *gin.Engine, config *cfg.Config) *jwt.GinJWTMiddleware {
 			if v, ok := data.(*User); ok {
 				return jwt.MapClaims{
 					identityKey: v.UserName,
+					"role":      v.Role,
 					"admin":     v.Admin,
 					"mod":       v.Mod,
 					"read_only": v.ReadOnly,
@@ -193,6 +198,7 @@ func setupAuthRouters(r *gin.Engine, config *cfg.Config) *jwt.GinJWTMiddleware {
 			claims := jwt.ExtractClaims(c)
 			return &User{
 				UserName: claims[identityKey].(string),
+				Role:     claims["role"].(string),
 				Admin:    claims["admin"].(bool),
 				Mod:      claims["mod"].(bool),
 				ReadOnly: claims["read_only"].(bool),
@@ -204,20 +210,23 @@ func setupAuthRouters(r *gin.Engine, config *cfg.Config) *jwt.GinJWTMiddleware {
 				return "", jwt.ErrMissingLoginValues
 			}
 
+			username := loginVals.Username
 			password := loginVals.Password
 
-			var u *User
-
-			isAdmin := password == config.Auth.AdminPassword
-			isMod := password == config.Auth.ModeratorPassword || isAdmin
-			isRO := password == config.Auth.ReadOnlyPassword || isMod
-
-			if !isAdmin && !isMod && !isRO {
+			cfgUser, err := config.Auth.Users.ValidateUserAndPassword(username, password)
+			if err != nil {
 				return nil, jwt.ErrFailedAuthentication
 			}
 
+			var u *User
+
+			isAdmin := cfgUser.Role == "admin"
+			isMod := cfgUser.Role == "moderator" || isAdmin
+			isRO := cfgUser.Role == "read_only" || isMod
+
 			u = &User{
-				UserName: "username",
+				UserName: cfgUser.Username,
+				Role:     cfgUser.Role,
 				Admin:    isAdmin,
 				Mod:      isMod,
 				ReadOnly: isRO,
@@ -248,6 +257,7 @@ func setupAuthRouters(r *gin.Engine, config *cfg.Config) *jwt.GinJWTMiddleware {
 				"token":     token,
 				"expire":    expire.Format(time.RFC3339),
 				"user_name": u.UserName,
+				"role":      u.Role,
 				"admin":     u.Admin,
 				"mod":       u.Mod,
 				"read_only": u.ReadOnly,
@@ -284,6 +294,7 @@ func GetUserFromClaims(c *gin.Context) *User {
 		claims := jwt.ExtractClaims(c)
 		return &User{
 			UserName: claims[identityKey].(string),
+			Role:     claims["role"].(string),
 			Admin:    claims["admin"].(bool),
 			Mod:      claims["mod"].(bool),
 			ReadOnly: claims["read_only"].(bool),

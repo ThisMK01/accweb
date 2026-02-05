@@ -4,8 +4,11 @@ import { fetchServer } from '@/lib/accweb/client'
 import type { ListServerItem } from '@/lib/accweb/types'
 import InstanceCard from './home-page/InstanceCard.vue'
 import _ from 'lodash'
+import { useAuthStore } from '@/stores/auth'
 
 const servers = ref<ListServerItem[]>([])
+const state = useAuthStore()
+
 let intervalId: NodeJS.Timeout
 
 const loading = ref(false)
@@ -63,7 +66,7 @@ const sortedServerList = computed<ListServerItem[]>(() => {
     <div class="flex-none flex flex-row mb-5">
       <div class="flex-auto">.</div>
       <div class="flex-none">
-        <UButton to="/instance-new" icon="i-lucide-plus">Create New</UButton>
+        <UButton to="/instance-new" icon="i-lucide-plus" label="Create New" v-if="state.admin" />
       </div>
     </div>
 
