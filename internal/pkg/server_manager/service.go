@@ -386,3 +386,7 @@ func (s *Service) ResetPassword(username string) error {
 
 	return s.config.Save()
 }
+
+func (s *Service) GetAuthConfig() cfg.Auth {
+	return s.config.Auth
+}

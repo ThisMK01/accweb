@@ -5,24 +5,6 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import ui from '@nuxt/ui/vite'
-import type { Plugin } from 'vite'
-
-/**
- * @param newFilename {string}
- * @returns {import('vite').Plugin}
- */
-const renameIndexPlugin = (newFilename: string | undefined): Plugin | undefined => {
-  if (!newFilename) return
-
-  return {
-    name: 'renameIndex',
-    enforce: 'post',
-    generateBundle(options, bundle) {
-      const indexHtml = bundle['index.html']
-      indexHtml.fileName = newFilename
-    },
-  }
-}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -41,8 +23,7 @@ export default defineConfig({
           }
         }
       }
-    }),
-    renameIndexPlugin('xindex.html')
+    })
   ],
   resolve: {
     alias: {
