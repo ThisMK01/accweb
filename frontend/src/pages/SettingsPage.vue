@@ -1,8 +1,45 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { TabsItem } from '@nuxt/ui'
+import TabGeneral from './settings/TabGeneral.vue'
+import TabGlobalEntrylist from './settings/TabGlobalEntrylist.vue'
+
+const tabItems = ref<TabsItem[]>([
+  {
+    label: 'General',
+    icon: 'i-lucide-settings',
+    content: 'General Settings',
+    slot: 'general',
+  },
+  {
+    label: 'Access Control',
+    icon: 'i-lucide-users',
+    content: 'Access control settings',
+    slot: 'access-control',
+  },
+  {
+    label: 'Global Entry List',
+    icon: 'i-lucide-notebook-pen',
+    content: 'Global Entry List settings',
+    slot: 'global-entry-list',
+  },
+  {
+    label: 'Global Ban',
+    icon: 'i-lucide-ban',
+    content: 'Global Ban settings',
+    slot: 'global-ban',
+  },
+])
+</script>
 
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">Settings</h1>
-    <p>Settings page content goes here.</p>
-  </div>
+  <UTabs :items="tabItems" variant="link" class="w-full gap-4">
+    <template #general>
+      <TabGeneral />
+    </template>
+
+    <template #global-entry-list>
+      <TabGlobalEntrylist />
+    </template>
+  </UTabs>
 </template>

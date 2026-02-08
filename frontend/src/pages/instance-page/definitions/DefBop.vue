@@ -11,7 +11,7 @@ const model = defineModel({
   default: {} as BopJson,
 })
 
-defineProps<{
+const props = defineProps<{
   currentTrack?: string
 }>()
 
@@ -84,6 +84,19 @@ function getRowItems(index: number): DropdownMenuItem[] {
     },
   ]
 }
+
+function addEntry() {
+  if (!model.value.entries) {
+    model.value.entries = []
+  }
+
+  model.value.entries.push({
+    track: props.currentTrack,
+    carModel: -1,
+    ballastKg: 0,
+    restrictor: 0,
+  } as BopSettings)
+}
 </script>
 
 <template>
@@ -132,14 +145,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
     <UButton
       label="Add"
       icon="i-lucide-plus"
-      @click="
-        model.entries.push({
-          track: currentTrack,
-          carModel: -1,
-          ballastKg: 0,
-          restrictor: 0,
-        } as BopSettings)
-      "
+      @click="addEntry()"
       color="secondary"
       variant="subtle"
       class="flex-none"

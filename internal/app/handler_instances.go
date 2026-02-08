@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"strconv"
 
@@ -398,6 +399,10 @@ func (h *Handler) GetInstanceResultList(c *echo.Context) error {
 
 	resultList, err := srv.GetResultList()
 	if err != nil {
+		var pErr *fs.PathError
+		if errors.As(err, &pErr) {
+			return c.NoContent(http.StatusNoContent)
+		}
 		return echo.ErrInternalServerError.Wrap(err)
 	}
 

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-const model = defineModel({
+import type { AccWebAdvWindowsSettingsJson, AccWebSettingsJson } from '@/lib/accweb/types'
+
+const model = defineModel<AccWebSettingsJson>({
   required: true,
   default: {
+    advWindowsCfg: {} as AccWebAdvWindowsSettingsJson,
     autoStart: false,
     enableGlobalEntrylist: true,
     enableGlobalBanlist: true,
-  },
+    enableAdvWindowsCfg: false,
+  } as AccWebSettingsJson,
 })
 </script>
 

@@ -108,8 +108,6 @@ function validate(): FormError[] {
     errors.push({ name: err.path.join('.'), message: err.message })
   })
 
-  console.log('Validation errors:', errors)
-
   return errors
 }
 

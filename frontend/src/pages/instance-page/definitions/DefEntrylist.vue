@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import EntryList from '@/components/EntryList.vue'
-import type { EntrylistJson } from '@/lib/accweb/types'
+import type { EntrylistJson, EntrySettings } from '@/lib/accweb/types'
 
 const model = defineModel({
   required: true,
-  default: {} as EntrylistJson,
+  default: {
+    entries: [] as EntrySettings[],
+    forceEntryList: 0,
+  } as EntrylistJson,
 })
 </script>
 

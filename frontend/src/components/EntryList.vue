@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import DriversTable from '@/components/DriversTable.vue'
 import cars from '@/data/cars'
-import type { EntrylistJson, EntrySettings } from '@/lib/accweb/types'
+import type { DriverSettings, EntrylistJson, EntrySettings } from '@/lib/accweb/types'
 import type { SelectItem } from '@nuxt/ui'
 import _ from 'lodash'
 import { ref } from 'vue'
 
 const model = defineModel({
   required: true,
-  default: {} as EntrylistJson,
+  default: {
+    entries: [] as EntrySettings[],
+    forceEntryList: 0,
+  } as EntrylistJson,
 })
 
-defineProps<{
+const props = defineProps<{
   hideForceEntryListCheckbox?: boolean
 }>()
 
@@ -20,6 +23,21 @@ const carItems = ref<SelectItem[]>(
     return { label: c.model, value: c.id }
   }),
 )
+
+const prefix = props.hideForceEntryListCheckbox ? '' : 'acc.entrylist.'
+
+function addEntry() {
+  if (!model.value.entries) {
+    model.value.entries = []
+  }
+
+  model.value.entries.push({
+    forcedCarModel: -1,
+    ballastKg: 0,
+    restrictor: 0,
+    drivers: [{ playerID: '' } as DriverSettings] as DriverSettings[],
+  } as EntrySettings)
+}
 </script>
 
 <template>
@@ -69,7 +87,7 @@ servers."
               <div class="flex-none flex flex-row gap-2">
                 <div class="flex-auto">
                   <TFormField
-                    :name="`acc.entrylist.entries.${idx}.raceNumber`"
+                    :name="`${prefix}entries.${idx}.raceNumber`"
                     label="Race Number"
                     help="The preferred race number if set, -1 if the driver may
 decide by picking his car. Values 1 - 998"
@@ -85,7 +103,7 @@ decide by picking his car. Values 1 - 998"
                 </div>
                 <div class="flex-auto pl-4">
                   <TFormField
-                    :name="`acc.entrylist.entries.${idx}.forcedCarModel`"
+                    :name="`${prefix}entries.${idx}.forcedCarModel`"
                     label="Forced Car Model"
                     help="If not set to -1: user cannot join with a different car, see
 “Car model list” for the values "
@@ -97,7 +115,7 @@ decide by picking his car. Values 1 - 998"
 
               <div class="flex-none">
                 <TFormField
-                  :name="`acc.entrylist.entries.${idx}.customCar`"
+                  :name="`${prefix}entries.${idx}.customCar`"
                   label="Custom Car"
                   help="If set to a filename, the car, team and appearance will be
 used no matter what the user chose (Exception:
@@ -127,7 +145,7 @@ appearance will be applied."
               <div class="flex-none flex flex-row gap-2">
                 <div class="flex-1">
                   <TFormField
-                    :name="`acc.entrylist.entries.${idx}.ballastKg`"
+                    :name="`${prefix}entries.${idx}.ballastKg`"
                     label="Ballast (0 - 100kg)"
                     help="Assigns ballast in kg for this car. Will be additive to
 ballast for the car model (via bop.json), and can be
@@ -139,7 +157,7 @@ overridden by the admin command /ballast. Range is 0 to
                 </div>
                 <div class="flex-1">
                   <TFormField
-                    :name="`acc.entrylist.entries.${idx}.restrictor`"
+                    :name="`${prefix}entries.${idx}.restrictor`"
                     label="Restrictor (0 - 20%)"
                     help="Assigns restrictor in % for this car. Will be additive to
 restrictor for the car model (via bop.json), and can be
@@ -174,7 +192,11 @@ server admin when he joins."
             </div>
 
             <div class="flex-auto place-items-center">
-              <DriversTable v-model="entry.drivers" :index="idx" />
+              <DriversTable
+                v-model="entry.drivers"
+                :index="idx"
+                :hide-prefix="hideForceEntryListCheckbox"
+              />
             </div>
           </div>
         </UCard>
@@ -184,7 +206,7 @@ server admin when he joins."
         <UButton
           label="Add"
           icon="i-lucide-plus"
-          @click="model.entries.push({} as EntrySettings)"
+          @click="addEntry()"
           color="secondary"
           variant="subtle"
           class="flex-none"

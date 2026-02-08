@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import nationalities from '@/data/nationalities'
 
 const model = defineModel<DriverSettings[]>()
-defineProps<{ index: number }>()
+const props = defineProps<{ index: number; hidePrefix: boolean }>()
 const driverCategories = ref<SelectItem[]>(['Bronze', 'Silver', 'Gold', 'Platinum'])
 const nationalitiesItems = ref<SelectItem[]>(nationalities)
 
@@ -19,6 +19,8 @@ const columns: TableColumn<DriverSettings>[] = [
   { accessorKey: 'playerID', header: 'Player ID' },
   { accessorKey: 'actions', header: '' },
 ]
+
+const prefix = props.hidePrefix ? '' : 'acc.entrylist.'
 
 function getRowItems(index: number): DropdownMenuItem[] {
   return [
@@ -78,19 +80,19 @@ function getRowItems(index: number): DropdownMenuItem[] {
 <template>
   <UTable ref="table" :data="model" :columns="columns" :ui="{ td: 'p-1' }">
     <template #firstName-cell="{ row }">
-      <TFormField :name="`acc.entrylist.${index}.drivers.${row.index}.firstName`">
+      <TFormField :name="`${prefix}entries.${index}.drivers.${row.index}.firstName`">
         <UInput v-model="model![row.index]!.firstName" size="sm" class="w-18" />
       </TFormField>
     </template>
 
     <template #lastName-cell="{ row }">
-      <TFormField :name="`acc.entrylist.${index}.drivers.${row.index}.lastName`">
+      <TFormField :name="`${prefix}entries.${index}.drivers.${row.index}.lastName`">
         <UInput v-model="model![row.index]!.lastName" size="sm" class="w-18" />
       </TFormField>
     </template>
 
     <template #shortName-cell="{ row }">
-      <TFormField :name="`acc.entrylist.${index}.drivers.${row.index}.shortName`">
+      <TFormField :name="`${prefix}entries.${index}.drivers.${row.index}.shortName`">
         <UInput v-model="model![row.index]!.shortName" size="sm" class="w-16" />
       </TFormField>
     </template>
@@ -100,7 +102,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
         v-model="model![row.index]!.nationality"
         size="sm"
         :items="nationalitiesItems"
-        class="w-26"
+        class="w-26 mt-1"
       />
     </template>
 
@@ -109,12 +111,12 @@ function getRowItems(index: number): DropdownMenuItem[] {
         v-model="model![row.index]!.driverCategory"
         :items="driverCategories"
         size="sm"
-        class="w-26"
+        class="w-26 mt-1"
       />
     </template>
 
     <template #playerID-cell="{ row }">
-      <TFormField :name="`acc.entrylist.${index}.drivers.${row.index}.playerID`">
+      <TFormField :name="`${prefix}entries.${index}.drivers.${row.index}.playerID`">
         <UInput v-model="model![row.index]!.playerID" size="sm" class="w-30" />
       </TFormField>
     </template>
@@ -139,7 +141,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
     <UButton
       label="Add"
       icon="i-lucide-plus"
-      @click="model?.push({} as DriverSettings)"
+      @click="model?.push({ playerID: '' } as DriverSettings)"
       color="secondary"
       variant="subtle"
       class="flex-none"
