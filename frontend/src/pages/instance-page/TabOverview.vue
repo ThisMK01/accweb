@@ -24,7 +24,7 @@ function refreshLiveData(id: string) {
 
 function loadLiveInstance(id: string) {
   refreshLiveData(id).then(() => {
-    intervalId = setTimeout(() => loadLiveInstance(id), 5000)
+    intervalId = setTimeout(() => loadLiveInstance(id), 2000)
   })
 }
 
