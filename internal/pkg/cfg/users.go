@@ -48,6 +48,25 @@ func (u *Users) Add(role, username, rawPassword string) error {
 	return nil
 }
 
+func (u Users) Update(username, role string, rawPassword *string) error {
+	for i, user := range u {
+		if user.Username == username {
+			if rawPassword != nil {
+				password, err := helper.HashPassword(*rawPassword)
+				if err != nil {
+					return err
+				}
+				u[i].Password = password
+			}
+
+			u[i].Role = role
+			return nil
+		}
+	}
+
+	return errors.New("user not found")
+}
+
 func (u *Users) DeleteByUsername(username string) error {
 	for i, user := range *u {
 		if user.Username == username {
@@ -59,8 +78,8 @@ func (u *Users) DeleteByUsername(username string) error {
 	return errors.New("user not found")
 }
 
-func (u *Users) ResetPassword(username string) (string, error) {
-	for i, user := range *u {
+func (u Users) ResetPassword(username string) (string, error) {
+	for i, user := range u {
 		if user.Username == username {
 			newPassword, err := helper.GenerateRandomPassword()
 			if err != nil {
@@ -72,7 +91,7 @@ func (u *Users) ResetPassword(username string) (string, error) {
 				return "", err
 			}
 
-			(*u)[i].Password = password
+			u[i].Password = password
 			return newPassword, nil
 		}
 	}
@@ -80,8 +99,8 @@ func (u *Users) ResetPassword(username string) (string, error) {
 	return "", errors.New("user not found")
 }
 
-func (u *Users) ValidateUserAndPassword(username, password string) (*User, error) {
-	for _, user := range *u {
+func (u Users) ValidateUserAndPassword(username, password string) (*User, error) {
+	for _, user := range u {
 		if user.Username == username {
 			if helper.CheckPasswordHash(password, user.Password) {
 				return &user, nil

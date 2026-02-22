@@ -23,9 +23,11 @@ The successor of [acweb](https://github.com/assetto-corsa-web/acweb)! accweb let
 
 Send some bitcoins to support the ACCWeb project
 
-[<img src="bitcoinwallet.png" alt="Send some bitcoins to support the ACCWeb project" width="250">](bitcoin:bc1q2xmugt40pwqj4erwtkqfh3fmfql3wrzchy85vcysdthf8ax9dnnsztq543?message=ACCWeb%20project%20support)
+<a href="bitcoin:bc1q2xmugt40pwqj4erwtkqfh3fmfql3wrzchy85vcysdthf8ax9dnnsztq543?message=ACCWeb%20project%20support">
+<img src="bitcoinwallet.png" alt="Send some bitcoins to support the ACCWeb project" width="250">
+</a>
 
-Address: bc1q2xmugt40pwqj4erwtkqfh3fmfql3wrzchy85vcysdthf8ax9dnnsztq543
+Address: <a href="bitcoin:bc1q2xmugt40pwqj4erwtkqfh3fmfql3wrzchy85vcysdthf8ax9dnnsztq543?message=ACCWeb%20project%20support">bc1q2xmugt40pwqj4erwtkqfh3fmfql3wrzchy85vcysdthf8ax9dnnsztq543</a>
 
 ## Features
 

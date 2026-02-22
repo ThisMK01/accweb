@@ -202,7 +202,7 @@ server admin when he joins."
         </UCard>
       </div>
 
-      <div class="flex-auto gap-2 mt-5">
+      <div class="flex-auto flex flex-row gap-2 mt-5">
         <UButton
           label="Add"
           icon="i-lucide-plus"

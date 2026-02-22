@@ -13,7 +13,7 @@ const nationalitiesItems = ref<SelectItem[]>(nationalities)
 const columns: TableColumn<DriverSettings>[] = [
   { accessorKey: 'firstName', header: 'First Name' },
   { accessorKey: 'lastName', header: 'Last Name' },
-  { accessorKey: 'shortName', header: 'Short Name' },
+  { accessorKey: 'shortName', header: 'Short' },
   { accessorKey: 'nationality', header: 'Nationality' },
   { accessorKey: 'driverCategory', header: 'Driver Category' },
   { accessorKey: 'playerID', header: 'Player ID' },
@@ -78,7 +78,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
 </script>
 
 <template>
-  <UTable ref="table" :data="model" :columns="columns" :ui="{ td: 'p-1' }">
+  <UTable ref="table" :data="model" :columns="columns" :ui="{ td: 'p-1', th: 'p-1 py-4' }">
     <template #firstName-cell="{ row }">
       <TFormField :name="`${prefix}entries.${index}.drivers.${row.index}.firstName`">
         <UInput v-model="model![row.index]!.firstName" size="sm" class="w-18" />
@@ -117,7 +117,7 @@ function getRowItems(index: number): DropdownMenuItem[] {
 
     <template #playerID-cell="{ row }">
       <TFormField :name="`${prefix}entries.${index}.drivers.${row.index}.playerID`">
-        <UInput v-model="model![row.index]!.playerID" size="sm" class="w-30" />
+        <UInput v-model="model![row.index]!.playerID" size="sm" class="w-36" />
       </TFormField>
     </template>
 

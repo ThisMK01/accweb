@@ -130,6 +130,11 @@ func setupRouters(e *echo.Echo, sM *server_manager.Service, config *cfg.Config) 
 		adm.POST("/configure/global-ban", h.SaveGlobalBans)
 		adm.POST("/configure/global-ban/enable-toggle", h.EnableToggleGlobalBans)
 		adm.DELETE("/configure/global-ban/:id", h.RemoveGlobalBans)
+
+		adm.GET("/configure/user", h.ListUsers)
+		adm.POST("/configure/user", h.AddUser)
+		adm.PUT("/configure/user/:username", h.UpdateUser)
+		adm.DELETE("/configure/user/:username", h.DeleteUser)
 	}
 
 }

@@ -79,3 +79,71 @@ func (h *Handler) LoginHandler(c *echo.Context) error {
 		"read_only": u.ReadOnly,
 	})
 }
+
+type UserPayload struct {
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}
+
+func (h *Handler) ListUsers(c *echo.Context) error {
+	users := h.sm.GetUsers()
+
+	var payload []UserPayload
+	for _, user := range users {
+		payload = append(payload, UserPayload{
+			Username: user.Username,
+			Role:     user.Role,
+		})
+	}
+
+	return c.JSON(http.StatusOK, payload)
+}
+
+type NewUserPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+}
+
+func (h *Handler) AddUser(c *echo.Context) error {
+	var json NewUserPayload
+	if err := c.Bind(&json); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	if err := h.sm.AddUser(json.Role, json.Username, json.Password); err != nil {
+		return echo.ErrInternalServerError.Wrap(err)
+	}
+
+	return c.JSON(http.StatusOK, nil)
+}
+
+type UpdateUserPayload struct {
+	Password *string `json:"password"`
+	Role     string  `json:"role"`
+}
+
+func (h *Handler) UpdateUser(c *echo.Context) error {
+	username := c.Param("username")
+
+	var json UpdateUserPayload
+	if err := c.Bind(&json); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	if err := h.sm.UpdateUser(username, json.Role, json.Password); err != nil {
+		return echo.ErrInternalServerError.Wrap(err)
+	}
+
+	return c.JSON(http.StatusOK, nil)
+}
+
+func (h *Handler) DeleteUser(c *echo.Context) error {
+	username := c.Param("username")
+
+	if err := h.sm.DeleteUser(username); err != nil {
+		return echo.ErrInternalServerError.Wrap(err)
+	}
+
+	return c.JSON(http.StatusOK, nil)
+}

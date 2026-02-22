@@ -356,7 +356,11 @@ func (s *Service) SaveConfig(newCfg cfg.Config) error {
 	return s.config.Save()
 }
 
-func (s *Service) AddUser(role string, username string, rawPassword string) error {
+func (s *Service) GetUsers() []cfg.User {
+	return s.config.Auth.Users
+}
+
+func (s *Service) AddUser(role, username, rawPassword string) error {
 	if err := s.config.Auth.Users.Add(role, username, rawPassword); err != nil {
 		return err
 	}
@@ -366,6 +370,14 @@ func (s *Service) AddUser(role string, username string, rawPassword string) erro
 
 func (s *Service) DeleteUser(username string) error {
 	if err := s.config.Auth.Users.DeleteByUsername(username); err != nil {
+		return err
+	}
+
+	return s.config.Save()
+}
+
+func (s *Service) UpdateUser(username, role string, rawPassword *string) error {
+	if err := s.config.Auth.Users.Update(username, role, rawPassword); err != nil {
 		return err
 	}
 

@@ -41,7 +41,7 @@ function logoutClick() {
   logout()
     .then(() => {
       state.logout()
-      window.location.href = '/login'
+      window.location.href = '/'
     })
     .catch((error) => {
       console.error('Logout error:', error)
@@ -108,6 +108,7 @@ function logoutClick() {
       <UButton
         icon="i-lucide-log-out"
         color="secondary"
+        variant="ghost"
         class="ml-2"
         @click="logoutClick()"
         v-if="!isLoginPage"

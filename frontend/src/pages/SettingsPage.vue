@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import type { TabsItem } from '@nuxt/ui'
 import TabGeneral from './settings/TabGeneral.vue'
 import TabGlobalEntrylist from './settings/TabGlobalEntrylist.vue'
+import TabGlobalBanlist from './settings/TabGlobalBanlist.vue'
+import TabAccessControl from './settings/TabAccessControl.vue'
 
 const tabItems = ref<TabsItem[]>([
   {
@@ -38,8 +40,16 @@ const tabItems = ref<TabsItem[]>([
       <TabGeneral />
     </template>
 
+    <template #access-control>
+      <TabAccessControl />
+    </template>
+
     <template #global-entry-list>
       <TabGlobalEntrylist />
+    </template>
+
+    <template #global-ban>
+      <TabGlobalBanlist />
     </template>
   </UTabs>
 </template>
