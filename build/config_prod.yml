@@ -1,0 +1,23 @@
+webserver:
+  host: 0.0.0.0:8080
+  write_timeout: 5
+  read_timeout: 5
+  tls: false
+auth:
+  timeout: 5h
+  admin_password: admin
+  moderator_password: mod
+  read_only_password: ro
+acc:
+  server_path: "./accserver"
+  server_exe: accServer.exe
+config_path: config/
+backend_api_url: "https://simshepherdshub.vercel.app"
+dev: false
+skip_wine: false
+loglevel: info
+cors:
+  origins: "*"
+  loglevel: info
+log:
+  with_timestamp: true

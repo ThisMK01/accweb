@@ -167,6 +167,8 @@ func (c *TelemetryCollector) RecordCollision(carId1, carId2 int, timeOfCollision
 	})
 
 	// 2. Also send to legacy collisions endpoint for full backward compatibility
+	// (DISABLED to prevent Vercel rate-limiting during the race)
+	/*
 	payload := BackendCollisionPayload{
 		ServerID:        c.instance.GetID(),
 		TimeOfCollision: timeOfCollision,
@@ -182,6 +184,7 @@ func (c *TelemetryCollector) RecordCollision(carId1, carId2 int, timeOfCollision
 			logrus.WithError(err).WithField("event_id", c.eventId).Debug("Legacy collision POST returned error or deprecated")
 		}
 	}()
+	*/
 }
 
 func (c *TelemetryCollector) resolveDriver(carId int) BackendCollisionUser {

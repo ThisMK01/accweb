@@ -16,7 +16,10 @@ var logLevel = map[string]logrus.Level{
 	"error": logrus.ErrorLevel,
 }
 
-var skipWine bool
+var (
+	skipWine      bool
+	backendApiUrl string
+)
 
 type Config struct {
 	Dev           bool      `yaml:"dev"`
@@ -109,10 +112,15 @@ func Load(file string) *Config {
 	}
 
 	skipWine = config.SkipWine
+	backendApiUrl = config.BackendApiUrl
 
 	return &config
 }
 
 func SkipWine() bool {
 	return skipWine
+}
+
+func BackendApiUrl() string {
+	return backendApiUrl
 }

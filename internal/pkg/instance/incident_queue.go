@@ -89,8 +89,9 @@ func (q *IncidentQueue) SaveToDisk() {
 
 func (q *IncidentQueue) Enqueue(inc Incident) {
 	q.lock.Lock()
-	defer q.lock.Unlock()
 	q.items = append(q.items, inc)
+	q.lock.Unlock()
+	q.SaveToDisk()
 }
 
 func (q *IncidentQueue) DequeueBatch(maxBatch int) []Incident {

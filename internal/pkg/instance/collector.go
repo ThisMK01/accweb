@@ -118,8 +118,8 @@ func (c *TelemetryCollector) Start() {
 		"event_id":  c.eventId,
 	}).Info("Telemetry Collector started")
 
-	// Start incident batcher
-	c.incidentBatcher.Start()
+	// Start incident batcher (disabled to prevent Vercel rate-limiting during the race)
+	// c.incidentBatcher.Start()
 
 	// Start UDP Telemetry Receiver on broadcasting port (default 9000 or udpPort-600)
 	bPort := 9000

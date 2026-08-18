@@ -415,5 +415,42 @@ func (c *TelemetryCollector) processRaceResult(res *ACCResultFile) error {
 		"drivers":  len(driverResults),
 	}).Info("Successfully synced final Race results to backend")
 
+	// Flush all accumulated incidents after the race finishes
+	if err := c.FlushIncidentsToBackend(); err != nil {
+		logrus.WithError(err).Warn("Failed to flush incidents after race results sync")
+	}
+
+	return nil
+}
+
+func (c *TelemetryCollector) FlushIncidentsToBackend() error {
+	incidents := c.incidentQueue.Drain()
+	if len(incidents) == 0 {
+		logrus.Info("No incidents to flush after the race")
+		return nil
+	}
+
+	payload := IncidentBatchPayload{
+		EventID:   c.eventId,
+		ServerID:  c.instance.GetID(),
+		SessionID: "live_session",
+		Incidents: incidents,
+	}
+
+	path := fmt.Sprintf("/events/%s/incidents/batch", c.eventId)
+	if err := c.sendHttpRequest("POST", path, payload); err != nil {
+		// Put them back in the queue if it failed so we can retry
+		c.lock.Lock()
+		c.incidentQueue.items = append(incidents, c.incidentQueue.items...)
+		c.lock.Unlock()
+		c.incidentQueue.SaveToDisk()
+		return fmt.Errorf("failed to sync incident batch to backend: %w", err)
+	}
+
+	// Success: Delete the persistent file
+	if c.incidentQueue.persistPath != "" {
+		_ = os.Remove(c.incidentQueue.persistPath)
+	}
+	logrus.WithField("count", len(incidents)).Info("Successfully flushed all queued incidents to backend after the race")
 	return nil
 }

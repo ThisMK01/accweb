@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -93,7 +95,7 @@ func (s *Instance) Start() error {
 
 	// Activate Telemetry Collector if enabled
 	if s.Collector == nil {
-		s.Collector = NewTelemetryCollector(s, "")
+		s.Collector = NewTelemetryCollector(s, cfg.BackendApiUrl())
 	}
 	s.Collector.Start()
 
@@ -118,10 +120,34 @@ func (s *Instance) Stop() error {
 
 	event.EmmitEventInstanceBeforeStop(s.ToEIB())
 
-	if err := s.cmd.Process.Kill(); err != nil {
-		logrus.WithField("server_id", s.GetID()).
-			WithError(err).
-			Error("Failed to kill the accserver process.")
+	if runtime.GOOS == "linux" && !cfg.SkipWine() {
+		// Kill the spawned wine command
+		_ = s.cmd.Process.Kill()
+
+		// Find and kill the orphaned accServer.exe process belonging to this instance
+		if files, err := os.ReadDir("/proc"); err == nil {
+			for _, f := range files {
+				if f.IsDir() {
+					pidStr := f.Name()
+					if pid, err := strconv.Atoi(pidStr); err == nil {
+						if exePath, err := os.Readlink(fmt.Sprintf("/proc/%d/exe", pid)); err == nil && strings.HasSuffix(exePath, "accServer.exe") {
+							if cwdPath, err := os.Readlink(fmt.Sprintf("/proc/%d/cwd", pid)); err == nil && filepath.Clean(cwdPath) == filepath.Clean(s.Path) {
+								if p, err := os.FindProcess(pid); err == nil {
+									_ = p.Kill()
+									logrus.WithField("server_id", s.GetID()).Infof("Killed orphaned accServer.exe process with PID %d", pid)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	} else {
+		if err := s.cmd.Process.Kill(); err != nil {
+			logrus.WithField("server_id", s.GetID()).
+				WithError(err).
+				Error("Failed to kill the accserver process.")
+		}
 	}
 
 	s.Live.ServerOffline()
@@ -252,6 +278,22 @@ func (s *Instance) UpdateAccServerExe(srcFile string) (bool, error) {
 
 	if err := os.Chmod(localFile, 0755); err != nil {
 		return false, err
+	}
+
+	// Copy all DLLs from the source server directory to the instance directory so Wine can load them.
+	srcDir := filepath.Dir(srcFile)
+	if files, err := os.ReadDir(srcDir); err == nil {
+		for _, f := range files {
+			if !f.IsDir() && filepath.Ext(f.Name()) == ".dll" {
+				srcDll := filepath.Join(srcDir, f.Name())
+				dstDll := filepath.Join(s.Path, f.Name())
+				if helper.Exists(dstDll) {
+					_ = os.Remove(dstDll)
+				}
+				_ = helper.Copy(srcDll, dstDll)
+				_ = os.Chmod(dstDll, 0755)
+			}
+		}
 	}
 
 	return s.CheckServerExeMd5Sum()

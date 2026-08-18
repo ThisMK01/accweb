@@ -6,6 +6,7 @@ accweb_*/
 releases/
 accweb
 accweb.exe
+accServer.exe
 config.yml
 frontend/node_modules/
 frontend/dist/

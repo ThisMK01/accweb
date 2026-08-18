@@ -1,33 +1,26 @@
-version: '3'
+version: '3.8'
 
 services:
   accweb:
+    build: .
     image: accweb:latest
-    container_name : accweb-server
+    container_name: accweb-server
     restart: always
     ports:
-      - 8080:8080
+      - "8080:8080"
+      - "9231:9231/udp"
+      - "9232:9232/tcp"
+      - "9000:9000/udp"
     volumes:
-      - "accweb:/accweb"
-      - "acccerts:/sslcerts"
-      - "accserver:/accserver"
+      - ./config:/accweb/config
+      - ./secrets:/accweb/secrets
+      - "../Assetto Corsa Competizione Dedicated Server/server:/accserver"
     environment:
       ACCWEB_HOST: 0.0.0.0:8080
       ACCWEB_ENABLE_TLS: "false"
-      ACCWEB_CERT_FILE: /sslcerts/certificate.crt
-      ACCWEB_PRIV_FILE: /sslcerts/private.key
-      ACCWEB_ADMIN_PASSWORD: weakadminpassword 
-      ACCWEB_MOD_PASSWORD: weakmodpassword 
-      ACCWEB_RO_PASSWORD: weakropassword 
-      ACCWEB_LOGLEVEL: info 
+      ACCWEB_ADMIN_PASSWORD: admin
+      ACCWEB_MOD_PASSWORD: mod
+      ACCWEB_RO_PASSWORD: ro
+      ACCWEB_BACKEND_API_URL: "https://simshepherdshub.vercel.app"
+      ACCWEB_LOGLEVEL: info
       ACCWEB_CORS: "*"
-    networks:
-      - accnetwork
-
-networks:
-  accnetwork:
-    
-volumes:
-  accweb:
-  acccerts:
-  accserver:
