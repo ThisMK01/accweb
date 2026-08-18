@@ -66,12 +66,27 @@ type AccWebConfigJson struct {
 	UpdatedAt time.Time          `json:"updatedAt"`
 }
 
+const (
+	CollectorStatusStopped = "stopped"
+	CollectorStatusEnabled = "enabled"
+)
+
 type AccWebSettingsJson struct {
 	AutoStart             bool                          `json:"autoStart"`
 	EnableAdvWinCfg       bool                          `json:"enableAdvWindowsCfg"`
 	AdvWindowsCfg         *AccWebAdvWindowsSettingsJson `json:"advWindowsCfg"`
 	EnableGlobalEntrylist bool                          `json:"enableGlobalEntrylist"`
 	EnableGlobalBanlist   bool                          `json:"enableGlobalBanlist"`
+	EventID               string                        `json:"event_id"`
+	CollectorEnabled      bool                          `json:"collector_enabled"`
+	CollectorStatus       string                        `json:"collector_status"`
+}
+
+func (s *AccWebSettingsJson) DeriveCollectorStatus() string {
+	if s.CollectorEnabled {
+		return CollectorStatusEnabled
+	}
+	return CollectorStatusStopped
 }
 
 type AccWebAdvWindowsSettingsJson struct {

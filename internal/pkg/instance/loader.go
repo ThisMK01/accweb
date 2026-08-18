@@ -76,6 +76,10 @@ func loadAccWebConfig(baseDir string) (*AccWebConfigJson, error) {
 		}
 	}
 
+	if cfg.Settings.CollectorStatus == "" {
+		cfg.Settings.CollectorStatus = cfg.Settings.DeriveCollectorStatus()
+	}
+
 	if changes {
 		if err := helper.SaveToPath(baseDir, accwebConfigJsonName, cfg); err != nil {
 			return nil, err

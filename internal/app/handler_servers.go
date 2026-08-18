@@ -24,9 +24,18 @@ type ListServerItem struct {
 	SessionType      string               `json:"sessionType"`
 	SessionPhase     string               `json:"sessionPhase"`
 	SessionRemaining int                  `json:"sessionRemaining"`
+
+	EventID          string `json:"event_id"`
+	CollectorEnabled bool   `json:"collector_enabled"`
+	CollectorStatus  string `json:"collector_status"`
 }
 
 func buildListServerItem(srv *instance.Instance) ListServerItem {
+	status := srv.Cfg.Settings.CollectorStatus
+	if status == "" {
+		status = srv.Cfg.Settings.DeriveCollectorStatus()
+	}
+
 	return ListServerItem{
 		ID:               srv.GetID(),
 		Name:             srv.AccCfg.Settings.ServerName,
@@ -40,6 +49,9 @@ func buildListServerItem(srv *instance.Instance) ListServerItem {
 		SessionType:      srv.Live.SessionType,
 		SessionPhase:     srv.Live.SessionPhase,
 		SessionRemaining: srv.Live.SessionRemaining,
+		EventID:          srv.Cfg.Settings.EventID,
+		CollectorEnabled: srv.Cfg.Settings.CollectorEnabled,
+		CollectorStatus:  status,
 	}
 }
 

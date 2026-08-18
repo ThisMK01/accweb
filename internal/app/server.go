@@ -42,7 +42,8 @@ func newAccWError(msg string) AccWError {
 }
 
 type Handler struct {
-	sm *server_manager.Service
+	sm  *server_manager.Service
+	cfg *cfg.Config
 }
 
 func my(prefix string, fs http.FileSystem) *myFS {
@@ -98,7 +99,7 @@ func StartServer(config *cfg.Config, sM *server_manager.Service) {
 }
 
 func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config) {
-	h := Handler{sm: sM}
+	h := Handler{sm: sM, cfg: config}
 
 	if config.Dev {
 		basedir := "public"
@@ -124,6 +125,7 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 	api.GET("/instance/:id/logs", h.GetInstanceLogs)
 	api.GET("/instance/:id/live", h.GetInstanceLiveState)
 	api.GET("/instance/:id/export", h.ExportInstance)
+	api.GET("/instance/:id/collector", h.GetCollectorSettings)
 
 	// moderator level
 	mod := api.Group("")
@@ -132,6 +134,8 @@ func setupRouters(r *gin.Engine, sM *server_manager.Service, config *cfg.Config)
 		mod.POST("/servers/stop-all", h.StopAllServers)
 		mod.POST("/instance/:id/start", h.StartInstance)
 		mod.POST("/instance/:id/stop", h.StopInstance)
+		mod.POST("/instance/:id/collector", h.SaveCollectorSettings)
+		mod.PUT("/instance/:id/collector", h.SaveCollectorSettings)
 	}
 
 	// admin level

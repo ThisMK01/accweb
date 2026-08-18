@@ -19,16 +19,17 @@ var logLevel = map[string]logrus.Level{
 var skipWine bool
 
 type Config struct {
-	Dev        bool      `yaml:"dev"`
-	SkipWine   bool      `yaml:"skip_wine"`
-	Loglevel   string    `yaml:"loglevel"`
-	ConfigPath string    `yaml:"config_path"`
-	Webserver  Webserver `yaml:"webserver"`
-	CORS       CORS      `yaml:"cors"`
-	Auth       Auth      `yaml:"auth"`
-	ACC        ACC       `yaml:"acc"`
-	Log        Log       `yaml:"log"`
-	Callback   Callback  `yaml:"callback"`
+	Dev           bool      `yaml:"dev"`
+	SkipWine      bool      `yaml:"skip_wine"`
+	Loglevel      string    `yaml:"loglevel"`
+	ConfigPath    string    `yaml:"config_path"`
+	BackendApiUrl string    `yaml:"backend_api_url"`
+	Webserver     Webserver `yaml:"webserver"`
+	CORS          CORS      `yaml:"cors"`
+	Auth          Auth      `yaml:"auth"`
+	ACC           ACC       `yaml:"acc"`
+	Log           Log       `yaml:"log"`
+	Callback      Callback  `yaml:"callback"`
 }
 
 func (c Config) AccServerFullPath() string {

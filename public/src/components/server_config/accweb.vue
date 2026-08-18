@@ -5,8 +5,11 @@
                 <checkbox :label="$t('autostart_label')" v-model="autoStart"></checkbox>
                 <checkbox :label="$t('enable_global_entry_label')" v-model="enableGlobalEntrylist"></checkbox>
                 <checkbox :label="$t('enable_global_ban_label')" v-model="enableGlobalBanlist"></checkbox>
-
                 
+                <div style="margin-top: 15px; border-top: 1px solid #233D51; padding-top: 10px;">
+                    <field :label="$t('event_id_label')" :placeholder="$t('event_id_placeholder')" v-model="eventId"></field>
+                    <checkbox :label="$t('collector_enabled_label')" v-model="collectorEnabled"></checkbox>
+                </div>
             </div>
             
             <div>
@@ -46,10 +49,11 @@
 import collapsible from "../collapsible.vue";
 import checkbox from "../checkbox.vue";
 import selection from "../selection.vue";
+import field from "../field.vue";
 import axios from "axios";
 
 export default {
-    components: {collapsible, checkbox, selection},
+    components: {collapsible, checkbox, selection, field},
     data() {
         return {
             autoStart: false,
@@ -73,7 +77,10 @@ export default {
             os: {
                 name: "",
                 numCpu: 0
-            }
+            },
+            eventId: "",
+            collectorEnabled: false,
+            collectorStatus: "stopped"
         };
     },
     methods: {
@@ -103,6 +110,9 @@ export default {
             this.enableAdvWindowsCfg = data.enableAdvWindowsCfg;
             this.enableGlobalEntrylist = data.enableGlobalEntrylist;
             this.enableGlobalBanlist = data.enableGlobalBanlist;
+            this.eventId = data.event_id || "";
+            this.collectorEnabled = !!data.collector_enabled;
+            this.collectorStatus = data.collector_status || (this.collectorEnabled ? "enabled" : "stopped");
 
             if (data.advWindowsCfg !== null) {
                 this.advWindowsCfg = data.advWindowsCfg;
@@ -128,7 +138,10 @@ export default {
                 enableAdvWindowsCfg: this.enableAdvWindowsCfg,
                 advWindowsCfg: this.advWindowsCfg,
                 enableGlobalEntrylist: this.enableGlobalEntrylist,
-                enableGlobalBanlist: this.enableGlobalEntrylist
+                enableGlobalBanlist: this.enableGlobalBanlist,
+                event_id: this.eventId,
+                collector_enabled: this.collectorEnabled,
+                collector_status: this.collectorStatus
             };
         }
     }
@@ -145,6 +158,9 @@ export default {
         "enable_windows_firewall": "Enable Windows Firewall",
         "enable_global_entry_label": "Enable global entry list",
         "enable_global_ban_label": "Enable global ban list",
+        "event_id_label": "Event ID",
+        "event_id_placeholder": "e.g. TEST-EVENT-001",
+        "collector_enabled_label": "Enable Telemetry Collector",
         "adv_windows_alert": "CAUTION: If you are not familiarized with this terms, DISABLE this feature!"
     }
 }

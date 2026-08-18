@@ -28,7 +28,8 @@
 			v-on:copied="loadServer"
 			v-on:deleted="loadServer"
 			v-on:started="loadServer"
-			v-on:stopped="loadServer"></server>
+			v-on:stopped="loadServer"
+			v-on:collector-updated="loadServer(false)"></server>
 		<p v-if="!servers || !servers.length">No servers found.</p>
 	</layout>
 </template>

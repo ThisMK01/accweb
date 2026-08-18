@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -46,10 +47,11 @@ var (
 )
 
 type Instance struct {
-	Path   string
-	Cfg    AccWebConfigJson
-	AccCfg AccConfigFiles
-	Live   *LiveState
+	Path      string
+	Cfg       AccWebConfigJson
+	AccCfg    AccConfigFiles
+	Live      *LiveState
+	Collector *TelemetryCollector
 
 	cmd    *exec.Cmd
 	cmdOut io.ReadCloser
@@ -89,6 +91,12 @@ func (s *Instance) Start() error {
 
 	logrus.WithField("server_id", s.GetID()).WithField("pid", s.GetProcessID()).Info("acc server started")
 
+	// Activate Telemetry Collector if enabled
+	if s.Collector == nil {
+		s.Collector = NewTelemetryCollector(s, "")
+	}
+	s.Collector.Start()
+
 	event.EmmitEventInstanceStarted(s.ToEIB())
 
 	go s.wait()
@@ -102,6 +110,11 @@ func (s *Instance) Stop() error {
 	}
 
 	s.Live.SetServerState(ServerStateStoping)
+
+	// Stop Telemetry Collector
+	if s.Collector != nil {
+		s.Collector.Stop()
+	}
 
 	event.EmmitEventInstanceBeforeStop(s.ToEIB())
 
@@ -175,6 +188,11 @@ func (s *Instance) Save() error {
 	}
 
 	return nil
+}
+
+func (s *Instance) SaveAccWebConfig() error {
+	s.Cfg.SetUpdateAt()
+	return helper.SaveToPath(s.Path, accwebConfigJsonName, &s.Cfg)
 }
 
 func (s *Instance) CheckDirectory() error {
@@ -321,6 +339,21 @@ func (s *Instance) prepareInstanceDir() error {
 		}
 	}
 
+	// Ensure broadcasting.json is present in cfg for ACC dedicated server broadcasting
+	bPort := 9000
+	if s.AccCfg.Configuration.UdpPort > 1000 {
+		bPort = s.AccCfg.Configuration.UdpPort - 600
+	}
+	bJson := map[string]interface{}{
+		"updListenerPort":    bPort,
+		"connectionPassword": "asd",
+		"commandPassword":    "",
+		"dumpLeaderboards":   0,
+	}
+	if bData, err := json.MarshalIndent(bJson, "", "  "); err == nil {
+		_ = os.WriteFile(path.Join(s.Path, accCfgDir, "broadcasting.json"), bData, 0644)
+	}
+
 	return nil
 }
 
@@ -430,6 +463,9 @@ func (s *Instance) processLinesFromBuffer(buffer *bytes.Buffer) {
 		decoded := helper.NormalizeEncoding(line)
 		if len(decoded) > 0 && !shouldFilterOutput(decoded) {
 			event.EmmitEventInstanceOutput(s.ToEIB(), decoded)
+			if s.Collector != nil && s.Collector.IsActive() {
+				s.Collector.HandleLogLine(string(decoded))
+			}
 		}
 	}
 }
@@ -446,6 +482,9 @@ func (s *Instance) processBufferedData(buffer *bytes.Buffer) {
 		decoded := helper.NormalizeEncoding(data)
 		if len(decoded) > 0 && !shouldFilterOutput(decoded) {
 			event.EmmitEventInstanceOutput(s.ToEIB(), decoded)
+			if s.Collector != nil && s.Collector.IsActive() {
+				s.Collector.HandleLogLine(string(decoded))
+			}
 		}
 	}
 

@@ -1,13 +1,18 @@
 package app
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/assetto-corsa-web/accweb/internal/pkg/instance"
 	"github.com/assetto-corsa-web/accweb/internal/pkg/server_manager"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type ExtraAccSettings struct {
@@ -166,6 +171,17 @@ func (h *Handler) SaveInstance(c *gin.Context) {
 		return
 	}
 
+	// Preserve collector metadata if not explicitly provided (Rule #3)
+	if json.AccWeb.EventID == "" && srv.Cfg.Settings.EventID != "" {
+		json.AccWeb.EventID = srv.Cfg.Settings.EventID
+	}
+	if !json.AccWeb.CollectorEnabled && srv.Cfg.Settings.CollectorEnabled {
+		json.AccWeb.CollectorEnabled = srv.Cfg.Settings.CollectorEnabled
+	}
+	if json.AccWeb.CollectorStatus == "" {
+		json.AccWeb.CollectorStatus = srv.Cfg.Settings.CollectorStatus
+	}
+
 	srv.AccCfg = json.Acc
 	srv.Cfg.Settings = json.AccWeb
 
@@ -221,7 +237,8 @@ func (h *Handler) DeleteInstance(c *gin.Context) {
 // @Router /instance/{id}/start [post]
 // @Security JWT
 func (h *Handler) StartInstance(c *gin.Context) {
-	if err := h.sm.Start(c.Param("id")); err != nil {
+	id := c.Param("id")
+	if err := h.sm.Start(id); err != nil {
 		if errors.Is(err, server_manager.ErrServerNotFound) {
 			c.JSON(http.StatusNotFound, nil)
 			return
@@ -232,6 +249,12 @@ func (h *Handler) StartInstance(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
 		return
+	}
+
+	if srv, err := h.sm.GetServerByID(id); err == nil {
+		if srv.Cfg.Settings.EventID != "" && srv.Cfg.Settings.CollectorEnabled {
+			go h.syncCollectorToBackend(srv.GetID(), srv.Cfg.Settings.EventID, true, "running")
+		}
 	}
 
 	c.JSON(http.StatusOK, nil)
@@ -262,6 +285,10 @@ func (h *Handler) StopInstance(c *gin.Context) {
 	if err := srv.Stop(); err != nil {
 		c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
 		return
+	}
+
+	if srv.Cfg.Settings.EventID != "" {
+		go h.syncCollectorToBackend(srv.GetID(), srv.Cfg.Settings.EventID, false, "stopped")
 	}
 
 	c.JSON(http.StatusOK, nil)
@@ -393,4 +420,153 @@ func (h *Handler) GetInstanceLiveState(c *gin.Context) {
 		ListServerItem: buildListServerItem(srv),
 		Live:           srv.Live,
 	})
+}
+
+type UpdateCollectorPayload struct {
+	EventID          string `json:"event_id"`
+	CollectorEnabled bool   `json:"collector_enabled"`
+}
+
+type CollectorResponse struct {
+	ServerID         string `json:"server_id"`
+	EventID          string `json:"event_id"`
+	CollectorEnabled bool   `json:"collector_enabled"`
+	CollectorStatus  string `json:"collector_status"`
+}
+
+// GetCollectorSettings Get collector settings for an instance
+// @Summary Get collector settings for an instance
+// @Description Get collector settings for an instance
+// @Tags instances
+// @Accept json
+// @Produce json
+// @Success 200 {object} CollectorResponse
+// @Failure 404
+// @Param id path string true "Instance ID"
+// @Router /instance/{id}/collector [get]
+// @Security JWT
+func (h *Handler) GetCollectorSettings(c *gin.Context) {
+	id := c.Param("id")
+
+	srv, err := h.sm.GetServerByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	status := srv.Cfg.Settings.CollectorStatus
+	if status == "" {
+		status = srv.Cfg.Settings.DeriveCollectorStatus()
+	}
+
+	c.JSON(http.StatusOK, CollectorResponse{
+		ServerID:         srv.GetID(),
+		EventID:          srv.Cfg.Settings.EventID,
+		CollectorEnabled: srv.Cfg.Settings.CollectorEnabled,
+		CollectorStatus:  status,
+	})
+}
+
+// SaveCollectorSettings Saves collector settings for an instance
+// @Summary Saves collector settings for an instance
+// @Description Saves collector settings for an instance
+// @Tags instances
+// @Accept json
+// @Produce json
+// @Success 200 {object} CollectorResponse
+// @Failure 400 {object} AccWError
+// @Failure 404
+// @Failure 500 {object} AccWError
+// @Param id path string true "Instance ID"
+// @Param collector body UpdateCollectorPayload true "Collector settings"
+// @Router /instance/{id}/collector [post]
+// @Security JWT
+func (h *Handler) SaveCollectorSettings(c *gin.Context) {
+	id := c.Param("id")
+
+	srv, err := h.sm.GetServerByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	var json UpdateCollectorPayload
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, newAccWError(err.Error()))
+		return
+	}
+
+	// Clean event_id: trim whitespace
+	eventID := strings.TrimSpace(json.EventID)
+
+	// Derive collector_status strictly based on collector_enabled (Rule #1)
+	var collectorStatus string
+	if json.CollectorEnabled {
+		collectorStatus = instance.CollectorStatusEnabled
+	} else {
+		collectorStatus = instance.CollectorStatusStopped
+	}
+
+	srv.Cfg.Settings.EventID = eventID
+	srv.Cfg.Settings.CollectorEnabled = json.CollectorEnabled
+	srv.Cfg.Settings.CollectorStatus = collectorStatus
+
+	// Save ONLY accwebConfig.json, leaving all 7 ACC config files untouched (Rule #2)
+	if err := srv.SaveAccWebConfig(); err != nil {
+		c.JSON(http.StatusInternalServerError, newAccWError(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, CollectorResponse{
+		ServerID:         srv.GetID(),
+		EventID:          srv.Cfg.Settings.EventID,
+		CollectorEnabled: srv.Cfg.Settings.CollectorEnabled,
+		CollectorStatus:  srv.Cfg.Settings.CollectorStatus,
+	})
+}
+
+func (h *Handler) syncCollectorToBackend(serverId, eventId string, enabled bool, status string) {
+	if eventId == "" {
+		return
+	}
+
+	apiUrl := "http://localhost:5000"
+	if h.cfg != nil && h.cfg.BackendApiUrl != "" {
+		apiUrl = h.cfg.BackendApiUrl
+	}
+
+	endpoint := fmt.Sprintf("%s/events/%s/collector", strings.TrimRight(apiUrl, "/"), eventId)
+
+	payload := map[string]interface{}{
+		"serverId":         serverId,
+		"collectorEnabled": enabled,
+		"collectorStatus":  status,
+	}
+
+	jsonBytes, err := json.Marshal(payload)
+	if err != nil {
+		logrus.WithError(err).Warn("Failed to marshal collector payload for backend sync")
+		return
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, endpoint, bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		logrus.WithError(err).Warn("Failed to create HTTP request for backend sync")
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		logrus.WithError(err).Warnf("Failed to sync collector status to backend at %s", endpoint)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		logrus.Infof("Successfully synced collector status '%s' for event %s to backend", status, eventId)
+	} else {
+		logrus.Warnf("Backend returned HTTP status %d when syncing collector for event %s", resp.StatusCode, eventId)
+	}
 }
